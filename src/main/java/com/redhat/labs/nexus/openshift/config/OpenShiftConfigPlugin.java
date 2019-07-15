@@ -35,11 +35,17 @@ import org.sonatype.nexus.security.SecuritySystem;
 import org.sonatype.nexus.security.user.UserNotFoundException;
 
 import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 
 import static com.redhat.labs.nexus.openshift.watchers.BlobStoreConfigWatcher.addBlobStore;
 import static com.redhat.labs.nexus.openshift.watchers.RepositoryConfigWatcher.createNewRepository;
 
-public class OpenShiftConfigPlugin {
+@Named(OpenShiftConfigPlugin.TYPE)
+@Singleton
+public class OpenShiftConfigPlugin extends  {
+  public static final String TYPE = "openshift-kubernetes-plugin";
+
   private static final Logger LOG = LoggerFactory.getLogger(OpenShiftConfigPlugin.class);
 
   @Inject
@@ -52,6 +58,7 @@ public class OpenShiftConfigPlugin {
   SecuritySystem security;
 
   public OpenShiftConfigPlugin(BlobStoreManager blobStoreManager, RepositoryApi repository, SecuritySystem security) throws Exception {
+    LOG.info("OpenShift Plugin All-Args Constructor");
     this.blobStoreManager = blobStoreManager;
     this.repository = repository;
     this.security = security;
@@ -64,6 +71,7 @@ public class OpenShiftConfigPlugin {
   }
 
   public OpenShiftConfigPlugin() throws Exception {
+    LOG.info("OpenShift Plugin No-Args Constructor");
     // This supports both stock K8s AND OpenShift so we don't have to use one or the other.
     // If running in OpenShift or K8s, it will automatically detect the correct settings and service account credentials
     // from the /run/secrets/kubernetes.io/serviceaccount directory
@@ -99,10 +107,8 @@ public class OpenShiftConfigPlugin {
 
   void setAdminPassword(OpenShiftClient client) throws UserNotFoundException {
     MixedOperation secrets = client.secrets();
-
     BaseOperation baseOperation = (BaseOperation) secrets.withName("nexus");
     Secret nexusCredentials = (Secret) baseOperation.get();
-
     String password = nexusCredentials.getData().getOrDefault("password", System.getenv().getOrDefault("NEXUS_PASSWORD", "admin123"));
     security.changePassword("admin", password);
   }

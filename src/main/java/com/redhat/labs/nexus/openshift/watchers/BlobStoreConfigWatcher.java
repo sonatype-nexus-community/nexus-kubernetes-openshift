@@ -8,11 +8,10 @@ import org.slf4j.LoggerFactory;
 import org.sonatype.nexus.blobstore.api.BlobStoreConfiguration;
 import org.sonatype.nexus.blobstore.api.BlobStoreManager;
 
-import javax.swing.*;
-
 /**
  * A watcher for BlobStore configurations for Nexus. This watcher will NEVER DELETE BLOBSTORES, ONLY CREATE
  */
+
 public class BlobStoreConfigWatcher implements Watcher<ConfigMap> {
 
   private static final Logger LOG = LoggerFactory.getLogger(BlobStoreConfigWatcher.class);
@@ -30,7 +29,6 @@ public class BlobStoreConfigWatcher implements Watcher<ConfigMap> {
     // order to prevent loss of existing data
     if (action == Action.ADDED) {
       addBlobStore(configMap, manager);
-
     } else {
       LOG.info(String.format("Watcher ignoring action type '%s' on BlobStore ConfigMaps", action.toString()));
     }

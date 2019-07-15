@@ -9,7 +9,6 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.sonatype.nexus.blobstore.api.BlobStoreManager
 import org.sonatype.nexus.repository.config.Configuration
-import org.sonatype.nexus.repository.storage.WritePolicy
 
 class RepositoryConfigWatcher implements Watcher<ConfigMap> {
 
