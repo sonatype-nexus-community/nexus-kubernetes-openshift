@@ -12,23 +12,23 @@
   ```xml
   <settings>
     <profiles>
-      <profile>
-        <id>puckboard</id>
-        <repositories>
-          <repository>
-            <id>nexus-releases</id>
-            <name>maven-releases</name>
-            <url>https://nexus-rht-puckboard-ci-cd.apps.puckboard.rht-labs.com/repository/maven-releases/</url>
-            <releases/>
-          </repository>
-          <repository>
-            <id>nexus-snapshots</id>
-            <name>maven-snapshots</name>
-            <url>https://nexus-rht-puckboard-ci-cd.apps.puckboard.rht-labs.com/repository/maven-snapshots/</url>
-            <snapshots/>
-          </repository>
-        </repositories>
-      </profile>
+        <profile>
+          <id>default</id>
+          <repositories>
+            <repository>
+              <id>nexus-public-grid</id>
+              <name>nexus-public-grid</name>
+              <url>https://repository.sonatype.org/content/groups/sonatype-public-grid/</url>
+              <releases/>
+            </repository>
+            <repository>
+              <id>central</id>
+              <name>central</name>
+              <url>https://repo.maven.apache.org/maven2/</url>
+              <releases/>
+            </repository>
+          </repositories>
+        </profile>
     </profiles>
     
     <activeProfiles>
