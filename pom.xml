@@ -81,6 +81,7 @@
       <groupId>io.fabric8</groupId>
       <artifactId>openshift-client</artifactId>
       <version>4.3.0</version>
+      <classifier>bundle</classifier>
     </dependency>
 
     <dependency>
@@ -105,35 +106,6 @@
             <classifier>pom</classifier>
           </dependency>
         </dependencies>
-      </plugin>
-      <!--
-        Generate basic OSGi metadata.
-        -->
-      <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
-        <version>3.3.0</version>
-        <!-- We need to force biz.aQute.bndlib to 3.5.0 because of https://issues.apache.org/jira/browse/FELIX-5698 -->
-        <dependencies>
-          <dependency>
-            <groupId>biz.aQute.bnd</groupId>
-            <artifactId>biz.aQute.bndlib</artifactId>
-            <version>3.5.0</version>
-          </dependency>
-        </dependencies>
-        <extensions>true</extensions>
-        <configuration>
-          <instructions>
-            <!-- relax range to account for guava versioning -->
-            <_consumer-policy>$(version;==)</_consumer-policy>
-            <!-- include all content in the output directory -->
-            <Include-Resource>
-              /=${project.build.outputDirectory},{maven-resources}
-            </Include-Resource>
-            <!-- clear default to avoid spurious !* warnings -->
-            <Private-Package/>
-          </instructions>
-        </configuration>
       </plugin>
 
       <!--
@@ -203,25 +175,6 @@
         <configuration>
           <licenseName>apache_v2</licenseName>
         </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>single</goal>
-            </goals>
-            <configuration>
-              <appendAssemblyId>false</appendAssemblyId>
-              <descriptors>
-                <descriptor>zipAssembly.xml</descriptor>
-              </descriptors>
-              <finalName>nexus-openshift-plugin</finalName>
-            </configuration>
-          </execution>
-        </executions>
       </plugin>
     </plugins>
   </build>
