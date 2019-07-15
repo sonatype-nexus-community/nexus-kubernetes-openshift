@@ -57,19 +57,6 @@ public class OpenShiftConfigPlugin {
   @Inject
   SecuritySystem security;
 
-  public OpenShiftConfigPlugin(BlobStoreManager blobStoreManager, RepositoryApi repository, SecuritySystem security) throws Exception {
-    LOG.info("OpenShift Plugin All-Args Constructor");
-    this.blobStoreManager = blobStoreManager;
-    this.repository = repository;
-    this.security = security;
-    // This supports both stock K8s AND OpenShift so we don't have to use one or the other.
-    // If running in OpenShift or K8s, it will automatically detect the correct settings and service account credentials
-    // from the /run/secrets/kubernetes.io/serviceaccount directory
-    try (OpenShiftClient client = new DefaultOpenShiftClient()) {
-      configureFromCluster(client);
-    }
-  }
-
   public OpenShiftConfigPlugin() throws Exception {
     LOG.info("OpenShift Plugin No-Args Constructor");
     // This supports both stock K8s AND OpenShift so we don't have to use one or the other.
