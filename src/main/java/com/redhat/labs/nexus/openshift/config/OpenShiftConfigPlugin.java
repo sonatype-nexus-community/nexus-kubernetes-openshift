@@ -43,7 +43,7 @@ import static com.redhat.labs.nexus.openshift.watchers.RepositoryConfigWatcher.c
 
 @Named(OpenShiftConfigPlugin.TYPE)
 @Singleton
-public class OpenShiftConfigPlugin extends  {
+public class OpenShiftConfigPlugin {
   public static final String TYPE = "openshift-kubernetes-plugin";
 
   private static final Logger LOG = LoggerFactory.getLogger(OpenShiftConfigPlugin.class);
