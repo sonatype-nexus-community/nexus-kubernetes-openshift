@@ -78,95 +78,21 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>io.fabric8</groupId>
-      <artifactId>openshift-client</artifactId>
-      <version>4.3.0</version>
-      <classifier>bundle</classifier>
-      <scope>compile</scope>
+      <groupId>io.kubernetes</groupId>
+      <artifactId>client-java</artifactId>
+      <version>5.0.0</version>
+      <exclusions>
+        <exclusion>
+          <groupId>com.squareup.okhttp</groupId>
+          <artifactId>okhttp</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
-      <groupId>io.fabric8</groupId>
-      <artifactId>kubernetes-client</artifactId>
-      <version>4.3.0</version>
-      <classifier>bundle</classifier>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>io.fabric8</groupId>
-      <artifactId>kubernetes-model</artifactId>
-      <version>4.3.0</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>io.fabric8</groupId>
-      <artifactId>kubernetes-model-common</artifactId>
-      <version>4.3.0</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>io.fabric8</groupId>
-      <artifactId>zjsonpatch</artifactId>
-      <version>0.3.0</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.github.mifmif</groupId>
-      <artifactId>generex</artifactId>
-      <version>1.0.2</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>dk.brics.automaton</groupId>
-      <artifactId>automaton</artifactId>
-      <version>1.11-8</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.squareup.okhttp3</groupId>
-      <artifactId>okhttp</artifactId>
-      <version>3.12.0</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.squareup.okio</groupId>
-      <artifactId>okio</artifactId>
-      <version>1.15.0</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <version>1.7.25</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>jul-to-slf4j</artifactId>
-      <version>1.7.25</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.yaml</groupId>
-      <artifactId>snakeyaml</artifactId>
-      <version>1.18</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-core</artifactId>
-      <version>2.9.2</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.module</groupId>
-      <artifactId>jackson-module-jaxb-annotations</artifactId>
-      <version>2.9.2</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.dataformat</groupId>
-      <artifactId>jackson-dataformat-yaml</artifactId>
-      <version>2.9.2</version>
+      <groupId>org.apache.servicemix.bundles</groupId>
+      <artifactId>org.apache.servicemix.bundles.okhttp</artifactId>
+      <version>2.7.5_1</version>
+      <type>bundle</type>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -267,8 +193,6 @@
         </dependencies>
         <extensions>true</extensions>
         <configuration>
-          <unpackBundle>true</unpackBundle>
-          <obrRepository>${project.basedir}/deploy/</obrRepository>
           <instructions>
             <!-- relax range to account for guava versioning -->
             <_consumer-policy>$(version;==)</_consumer-policy>
@@ -278,15 +202,6 @@
             </Include-Resource>
             <!-- clear default to avoid spurious !* warnings -->
             <Private-Package/>
-            <Embed-Dependency>*;scope=compile|runtime;inline=true</Embed-Dependency>
-<!--            <Embed-Dependency>io.fabric8;scope=compile</Embed-Dependency>
-            <Embed-Dependency>org.glassfish;scope=compile</Embed-Dependency>
-            <Embed-Dependency>com.squareup.*;scope=compile</Embed-Dependency>
-            <Embed-Dependency>org.slf4j;scope=compile</Embed-Dependency>
-            <Embed-Dependency>org.yaml;scope=compile</Embed-Dependency>
-            <Embed-Dependency>com.github.mifmif;scope=compile</Embed-Dependency>
-            <Embed-Dependency>dk.brics.automaton;scope=compile</Embed-Dependency>-->
-            <Bundle-ClassPath>.,{maven-dependencies}</Bundle-ClassPath>
           </instructions>
         </configuration>
       </plugin>

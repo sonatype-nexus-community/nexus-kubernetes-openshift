@@ -1,4 +1,4 @@
-package com.redhat.labs.nexus.openshift;
+package com.redhat.labs.nexus.openshift.internal;
 
 import org.sonatype.goodies.common.ComponentSupport;
 import org.sonatype.nexus.common.log.LogConfigurationCustomizer;
