@@ -82,11 +82,98 @@
       <artifactId>openshift-client</artifactId>
       <version>4.3.0</version>
       <classifier>bundle</classifier>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>kubernetes-client</artifactId>
+      <version>4.3.0</version>
+      <classifier>bundle</classifier>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>kubernetes-model</artifactId>
+      <version>4.3.0</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>kubernetes-model-common</artifactId>
+      <version>4.3.0</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>zjsonpatch</artifactId>
+      <version>0.3.0</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.github.mifmif</groupId>
+      <artifactId>generex</artifactId>
+      <version>1.0.2</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>dk.brics.automaton</groupId>
+      <artifactId>automaton</artifactId>
+      <version>1.11-8</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.squareup.okhttp3</groupId>
+      <artifactId>okhttp</artifactId>
+      <version>3.12.0</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.squareup.okio</groupId>
+      <artifactId>okio</artifactId>
+      <version>1.15.0</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.7.25</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jul-to-slf4j</artifactId>
+      <version>1.7.25</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.yaml</groupId>
+      <artifactId>snakeyaml</artifactId>
+      <version>1.18</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+      <version>2.9.2</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.module</groupId>
+      <artifactId>jackson-module-jaxb-annotations</artifactId>
+      <version>2.9.2</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.dataformat</groupId>
+      <artifactId>jackson-dataformat-yaml</artifactId>
+      <version>2.9.2</version>
+      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.spockframework</groupId>
       <artifactId>spock-core</artifactId>
       <version>1.3-groovy-2.4</version>
+      <scope>test</scope>
     </dependency>
     <dependency> <!-- enables mocking of classes (in addition to interfaces) -->
       <groupId>net.bytebuddy</groupId>
@@ -105,7 +192,8 @@
     <dependency>
       <groupId>org.codehaus.groovy</groupId>
       <artifactId>groovy-all</artifactId>
-      <version>2.4.16</version>
+      <version>2.4.15</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.sonatype.nexus</groupId>
@@ -129,9 +217,9 @@
           </dependency>
         </dependencies>
       </plugin>
-      <plugin>
-        <!-- The gmavenplus plugin is used to compile Groovy code. To learn more about this plugin,
-        visit https://github.com/groovy/GMavenPlus/wiki -->
+<!--      <plugin>
+        &lt;!&ndash; The gmavenplus plugin is used to compile Groovy code. To learn more about this plugin,
+        visit https://github.com/groovy/GMavenPlus/wiki &ndash;&gt;
         <groupId>org.codehaus.gmavenplus</groupId>
         <artifactId>gmavenplus-plugin</artifactId>
         <version>1.7.1</version>
@@ -143,7 +231,7 @@
             </goals>
           </execution>
         </executions>
-      </plugin>
+      </plugin>-->
       <!-- Optional plugins for using Spock -->
       <!-- Only required if names of spec classes don't match default Surefire patterns (`*Test` etc.) -->
       <plugin>
@@ -163,6 +251,43 @@
         <version>1.20</version>
         <configuration>
           <licenseName>apache_v2</licenseName>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <version>3.3.0</version>
+        <!-- We need to force biz.aQute.bndlib to 3.5.0 because of https://issues.apache.org/jira/browse/FELIX-5698 -->
+        <dependencies>
+          <dependency>
+            <groupId>biz.aQute.bnd</groupId>
+            <artifactId>biz.aQute.bndlib</artifactId>
+            <version>4.2.0</version>
+          </dependency>
+        </dependencies>
+        <extensions>true</extensions>
+        <configuration>
+          <unpackBundle>true</unpackBundle>
+          <obrRepository>${project.basedir}/deploy/</obrRepository>
+          <instructions>
+            <!-- relax range to account for guava versioning -->
+            <_consumer-policy>$(version;==)</_consumer-policy>
+            <!-- include all content in the output directory -->
+            <Include-Resource>
+              /=${project.build.outputDirectory},{maven-resources}
+            </Include-Resource>
+            <!-- clear default to avoid spurious !* warnings -->
+            <Private-Package/>
+            <Embed-Dependency>*;scope=compile|runtime;inline=true</Embed-Dependency>
+<!--            <Embed-Dependency>io.fabric8;scope=compile</Embed-Dependency>
+            <Embed-Dependency>org.glassfish;scope=compile</Embed-Dependency>
+            <Embed-Dependency>com.squareup.*;scope=compile</Embed-Dependency>
+            <Embed-Dependency>org.slf4j;scope=compile</Embed-Dependency>
+            <Embed-Dependency>org.yaml;scope=compile</Embed-Dependency>
+            <Embed-Dependency>com.github.mifmif;scope=compile</Embed-Dependency>
+            <Embed-Dependency>dk.brics.automaton;scope=compile</Embed-Dependency>-->
+            <Bundle-ClassPath>.,{maven-dependencies}</Bundle-ClassPath>
+          </instructions>
         </configuration>
       </plugin>
     </plugins>
