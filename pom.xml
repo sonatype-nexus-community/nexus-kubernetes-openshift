@@ -85,67 +85,6 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>io.fabric8</groupId>
-      <artifactId>kubernetes-client</artifactId>
-      <version>4.3.0</version>
-      <classifier>bundle</classifier>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>io.fabric8</groupId>
-      <artifactId>kubernetes-model</artifactId>
-      <version>4.3.0</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>io.fabric8</groupId>
-      <artifactId>kubernetes-model-common</artifactId>
-      <version>4.3.0</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>io.fabric8</groupId>
-      <artifactId>zjsonpatch</artifactId>
-      <version>0.3.0</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.github.mifmif</groupId>
-      <artifactId>generex</artifactId>
-      <version>1.0.2</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>dk.brics.automaton</groupId>
-      <artifactId>automaton</artifactId>
-      <version>1.11-8</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.squareup.okhttp3</groupId>
-      <artifactId>okhttp</artifactId>
-      <version>3.12.0</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.squareup.okio</groupId>
-      <artifactId>okio</artifactId>
-      <version>1.15.0</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <version>1.7.25</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>jul-to-slf4j</artifactId>
-      <version>1.7.25</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
       <groupId>org.yaml</groupId>
       <artifactId>snakeyaml</artifactId>
       <version>1.18</version>
@@ -278,7 +217,7 @@
             </Include-Resource>
             <!-- clear default to avoid spurious !* warnings -->
             <Private-Package/>
-            <Import-Package>!com.squareup,!io.fabirc8,!com.mifmif.common.regex,!dk.brics.automaton,!android.net,!android.net.http,!android.os,!android.security,!android.util,!com.android.org.conscrypt,!dalvik.system,*</Import-Package>
+            <Import-Package>!io.fabric8.openshift.api.model,!io.fabric8.kubernetes.client.utils,!io.fabric8.kubernetes.client.dsl.internal,!io.fabric8.kubernetes.client.dsl.base,!io.fabric8.kubernetes.client.dsl,!io.fabric8.kubernetes.client,!io.fabric8.kubernetes.api.model.apiextensions,!io.fabric8.kubernetes.api.model,!io.fabric8.kubernetes.api.builder,!okhttp3.logging,!okhttp3,!com.squareup.tape,!okio,!io.fabric8.kubernetes.api,!io.fabric8.kubernetes.model.annotation,!io.fabric8.openshift.client,!com.mifmif.common.regex,!dk.brics.automaton,!android.net,!android.net.http,!android.os,!android.security,!android.util,!com.android.org.conscrypt,!dalvik.system,*</Import-Package>
             <Embed-Dependency>*;scope=compile|runtime;inline=true</Embed-Dependency>
 <!--            <Embed-Dependency>io.fabric8;scope=compile</Embed-Dependency>
             <Embed-Dependency>org.glassfish;scope=compile</Embed-Dependency>
