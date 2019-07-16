@@ -1,4 +1,4 @@
-package com.redhat.labs.nexus.openshift.helpers
+package com.redhat.labs.nexus.openshift
 
 import javax.inject.Inject
 import javax.inject.Named
@@ -54,15 +54,22 @@ public enum VersionPolicy
 /**
  * @since 3.0
  */
-@Named
+@Named(RepositoryApi.TYPE)
 @Singleton
 @CompileStatic
 class RepositoryApi {
-  @Inject
+
+  public static final String TYPE = 'repository-api'
+
   RepositoryManager repositoryManager
 
-  @Inject
   BlobStoreManager blobStoreManager
+
+  @Inject
+  RepositoryApi(RepositoryManager repositoryManager, BlobStoreManager blobStoreManager) {
+    this.repositoryManager = repositoryManager
+    this.blobStoreManager = blobStoreManager
+  }
 
   /**
    * Create a hosted configuration for the given recipeName.

@@ -1,4 +1,4 @@
-package com.redhat.labs.nexus.openshift.watchers;
+package com.redhat.labs.nexus.openshift;
 
 import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.client.KubernetesClientException;

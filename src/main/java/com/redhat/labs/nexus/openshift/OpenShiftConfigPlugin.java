@@ -1,4 +1,4 @@
-package com.redhat.labs.nexus.openshift.config;
+package com.redhat.labs.nexus.openshift;
 
 /*-
  * #%L
@@ -20,9 +20,8 @@ package com.redhat.labs.nexus.openshift.config;
  * #L%
  */
 
-import com.redhat.labs.nexus.openshift.helpers.RepositoryApi;
-import com.redhat.labs.nexus.openshift.watchers.BlobStoreConfigWatcher;
-import com.redhat.labs.nexus.openshift.watchers.RepositoryConfigWatcher;
+import com.redhat.labs.nexus.openshift.RepositoryApi;
+import com.redhat.labs.nexus.openshift.RepositoryConfigWatcher;
 import io.fabric8.kubernetes.api.model.Secret;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.base.BaseOperation;
@@ -30,6 +29,7 @@ import io.fabric8.openshift.client.DefaultOpenShiftClient;
 import io.fabric8.openshift.client.OpenShiftClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonatype.goodies.common.ComponentSupport;
 import org.sonatype.nexus.blobstore.api.BlobStoreManager;
 import org.sonatype.nexus.security.SecuritySystem;
 import org.sonatype.nexus.security.user.UserNotFoundException;
@@ -38,26 +38,31 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
-import static com.redhat.labs.nexus.openshift.watchers.BlobStoreConfigWatcher.addBlobStore;
-import static com.redhat.labs.nexus.openshift.watchers.RepositoryConfigWatcher.createNewRepository;
+import static com.redhat.labs.nexus.openshift.BlobStoreConfigWatcher.addBlobStore;
+import static com.redhat.labs.nexus.openshift.RepositoryConfigWatcher.createNewRepository;
 
 @Named(OpenShiftConfigPlugin.TYPE)
 @Singleton
-public class OpenShiftConfigPlugin {
+public class OpenShiftConfigPlugin extends ComponentSupport {
   public static final String TYPE = "openshift-kubernetes-plugin";
 
   private static final Logger LOG = LoggerFactory.getLogger(OpenShiftConfigPlugin.class);
 
-  @Inject
-  BlobStoreManager blobStoreManager;
+  final BlobStoreManager blobStoreManager;
+
+  final RepositoryApi repository;
+
+  final SecuritySystem security;
 
   @Inject
-  RepositoryApi repository;
-
-  @Inject
-  SecuritySystem security;
-
-  public OpenShiftConfigPlugin() throws Exception {
+  public OpenShiftConfigPlugin(
+      BlobStoreManager blobStoreManager,
+      RepositoryApi repository,
+      SecuritySystem security) throws Exception {
+    LOG.info("OpenShift/Kubernetes Plugin loading");
+    this.blobStoreManager = blobStoreManager;
+    this.repository = repository;
+    this.security = security;
     LOG.info("OpenShift Plugin No-Args Constructor");
     // This supports both stock K8s AND OpenShift so we don't have to use one or the other.
     // If running in OpenShift or K8s, it will automatically detect the correct settings and service account credentials
