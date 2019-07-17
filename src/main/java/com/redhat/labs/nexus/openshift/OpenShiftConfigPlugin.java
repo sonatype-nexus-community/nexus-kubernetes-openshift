@@ -20,8 +20,6 @@ package com.redhat.labs.nexus.openshift;
  * #L%
  */
 
-import com.redhat.labs.nexus.openshift.RepositoryApi;
-import com.redhat.labs.nexus.openshift.RepositoryConfigWatcher;
 import io.fabric8.kubernetes.api.model.Secret;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.base.BaseOperation;
@@ -29,8 +27,9 @@ import io.fabric8.openshift.client.DefaultOpenShiftClient;
 import io.fabric8.openshift.client.OpenShiftClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonatype.goodies.common.ComponentSupport;
+import org.sonatype.goodies.lifecycle.LifecycleSupport;
 import org.sonatype.nexus.blobstore.api.BlobStoreManager;
+import org.sonatype.nexus.common.app.ManagedLifecycle;
 import org.sonatype.nexus.security.SecuritySystem;
 import org.sonatype.nexus.security.user.UserNotFoundException;
 
@@ -40,11 +39,13 @@ import javax.inject.Singleton;
 
 import static com.redhat.labs.nexus.openshift.BlobStoreConfigWatcher.addBlobStore;
 import static com.redhat.labs.nexus.openshift.RepositoryConfigWatcher.createNewRepository;
+import static org.sonatype.nexus.common.app.ManagedLifecycle.Phase.SERVICES;
 
 @Named(OpenShiftConfigPlugin.TYPE)
 @Singleton
-public class OpenShiftConfigPlugin extends ComponentSupport {
-  public static final String TYPE = "openshift-kubernetes-plugin";
+@ManagedLifecycle(phase = SERVICES)
+public class OpenShiftConfigPlugin extends LifecycleSupport {
+  static final String TYPE = "openshift-kubernetes-plugin";
 
   private static final Logger LOG = LoggerFactory.getLogger(OpenShiftConfigPlugin.class);
 
@@ -64,9 +65,14 @@ public class OpenShiftConfigPlugin extends ComponentSupport {
     this.repository = repository;
     this.security = security;
     LOG.info("OpenShift Plugin No-Args Constructor");
+  }
+
+  @Override
+  protected void doStart() throws Exception {
     // This supports both stock K8s AND OpenShift so we don't have to use one or the other.
-    // If running in OpenShift or K8s, it will automatically detect the correct settings and service account credentials
-    // from the /run/secrets/kubernetes.io/serviceaccount directory
+    // If running in OpenShift or K8s, it will automatically detect the correct settings
+    // and service account credentials from the /run/secrets/kubernetes.io/serviceaccount
+    // directory
     try (OpenShiftClient client = new DefaultOpenShiftClient()) {
       configureFromCluster(client);
     }

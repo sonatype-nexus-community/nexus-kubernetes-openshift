@@ -85,28 +85,14 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>org.yaml</groupId>
-      <artifactId>snakeyaml</artifactId>
-      <version>1.18</version>
-      <scope>provided</scope>
+      <groupId>com.squareup.okhttp</groupId>
+      <artifactId>okhttp</artifactId>
+      <version>2.7.5</version>
     </dependency>
     <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-core</artifactId>
-      <version>2.9.2</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.module</groupId>
-      <artifactId>jackson-module-jaxb-annotations</artifactId>
-      <version>2.9.2</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.dataformat</groupId>
-      <artifactId>jackson-dataformat-yaml</artifactId>
-      <version>2.9.2</version>
-      <scope>provided</scope>
+      <groupId>com.squareup.okio</groupId>
+      <artifactId>okio</artifactId>
+      <version>1.16.0</version>
     </dependency>
     <dependency>
       <groupId>org.spockframework</groupId>
@@ -207,7 +193,6 @@
         <extensions>true</extensions>
         <configuration>
           <unpackBundle>true</unpackBundle>
-          <obrRepository>${project.basedir}/deploy/</obrRepository>
           <instructions>
             <!-- relax range to account for guava versioning -->
             <_consumer-policy>$(version;==)</_consumer-policy>
@@ -217,15 +202,9 @@
             </Include-Resource>
             <!-- clear default to avoid spurious !* warnings -->
             <Private-Package/>
-            <Import-Package>!io.fabric8.openshift.api.model,!io.fabric8.kubernetes.client.utils,!io.fabric8.kubernetes.client.dsl.internal,!io.fabric8.kubernetes.client.dsl.base,!io.fabric8.kubernetes.client.dsl,!io.fabric8.kubernetes.client,!io.fabric8.kubernetes.api.model.apiextensions,!io.fabric8.kubernetes.api.model,!io.fabric8.kubernetes.api.builder,!okhttp3.logging,!okhttp3,!com.squareup.tape,!okio,!io.fabric8.kubernetes.api,!io.fabric8.kubernetes.model.annotation,!io.fabric8.openshift.client,!com.mifmif.common.regex,!dk.brics.automaton,!android.net,!android.net.http,!android.os,!android.security,!android.util,!com.android.org.conscrypt,!dalvik.system,*</Import-Package>
+            <Export-Package>com.redhat.labs.nexus.openshift</Export-Package>
+            <Import-Package>!org.apache.harmony.*,!com.android.*,!io.fabric8.*,!okhttp3.*,!com.squareup.*,!okio,!com.mifmif.common.regex,!dk.brics.automaton,!android.*,!dalvik.system,*</Import-Package>
             <Embed-Dependency>*;scope=compile|runtime;inline=true</Embed-Dependency>
-<!--            <Embed-Dependency>io.fabric8;scope=compile</Embed-Dependency>
-            <Embed-Dependency>org.glassfish;scope=compile</Embed-Dependency>
-            <Embed-Dependency>com.squareup.*;scope=compile</Embed-Dependency>
-            <Embed-Dependency>org.slf4j;scope=compile</Embed-Dependency>
-            <Embed-Dependency>org.yaml;scope=compile</Embed-Dependency>
-            <Embed-Dependency>com.github.mifmif;scope=compile</Embed-Dependency>
-            <Embed-Dependency>dk.brics.automaton;scope=compile</Embed-Dependency>-->
             <Bundle-ClassPath>.,{maven-dependencies}</Bundle-ClassPath>
           </instructions>
         </configuration>
