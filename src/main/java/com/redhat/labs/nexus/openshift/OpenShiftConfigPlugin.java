@@ -20,14 +20,14 @@ package com.redhat.labs.nexus.openshift;
  * #L%
  */
 
-import io.fabric8.kubernetes.api.model.Secret;
-import io.fabric8.kubernetes.client.Watch;
-import io.fabric8.kubernetes.client.dsl.MixedOperation;
-import io.fabric8.kubernetes.client.dsl.base.BaseOperation;
-import io.fabric8.openshift.client.DefaultOpenShiftClient;
-import io.fabric8.openshift.client.OpenShiftClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.google.gson.reflect.TypeToken;
+import io.kubernetes.client.ApiClient;
+import io.kubernetes.client.ApiException;
+import io.kubernetes.client.apis.CoreV1Api;
+import io.kubernetes.client.models.V1ConfigMap;
+import io.kubernetes.client.models.V1Secret;
+import io.kubernetes.client.util.Config;
+import io.kubernetes.client.util.Watch;
 import org.sonatype.goodies.lifecycle.LifecycleSupport;
 import org.sonatype.nexus.blobstore.api.BlobStoreManager;
 import org.sonatype.nexus.common.app.ManagedLifecycle;
@@ -38,11 +38,19 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import static com.redhat.labs.nexus.openshift.BlobStoreConfigWatcher.addBlobStore;
 import static com.redhat.labs.nexus.openshift.RepositoryConfigWatcher.createNewRepository;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.sonatype.nexus.common.app.ManagedLifecycle.Phase.SERVICES;
 
 @Named(OpenShiftConfigPlugin.TYPE)
@@ -60,9 +68,10 @@ public class OpenShiftConfigPlugin extends LifecycleSupport {
   @Inject
   SecuritySystem security;
 
-  private OpenShiftClient client;
-
-  private List<Watch> watchers = new ArrayList<>();
+  private ApiClient client;
+  private CoreV1Api api;
+  private String namespace;
+  private List<WatcherThread> watchers = new ArrayList<>();
 
   public OpenShiftConfigPlugin() {
     log.info("OpenShift/Kubernetes Plugin loading");
@@ -75,13 +84,27 @@ public class OpenShiftConfigPlugin extends LifecycleSupport {
     // and service account credentials from the /run/secrets/kubernetes.io/serviceaccount
     // directory
     log.info("OpenShift/Kubernetes Plugin starting");
-    client = new DefaultOpenShiftClient();
+    File namespaceFile = new File("/run/secrets/kubernetes.io/serviceaccount/namespace");
+    namespace = null;
+    if (namespaceFile.exists() && namespaceFile.canRead()) {
+      try {
+        namespace = new String(Files.readAllBytes(namespaceFile.toPath()), Charset.defaultCharset()).trim();
+      } catch (IOException ioe) {
+        log.warn("Unable to read namespace from running container", ioe);
+        namespace = System.getenv("KUBERNETES_NAMESPACE");
+        if (namespace == null) {
+          log.warn("Unable to read namespace from environment variable KUBERNETES_NAMESPACE");
+        }
+      }
+    }
+    client = Config.defaultClient();
+    api = new CoreV1Api(client);
     configureFromCluster();
   }
 
   void configureFromCluster() throws Exception {
     try {
-      client.settings().getNamespace();
+      client.getBasePath();
       log.info("OpenShift/Kubernetes client successfully configured");
       setAdminPassword();
 
@@ -95,22 +118,49 @@ public class OpenShiftConfigPlugin extends LifecycleSupport {
   }
 
   void readAndConfigure() {
-    client.configMaps().withLabel("nexus-type==blobstore").list().getItems().forEach(blobStore -> addBlobStore(blobStore, blobStoreManager));
+    try {
+      api.listNamespacedConfigMap(namespace, null, null, null, null, "nexus-type==blobstore", null, null, null, Boolean.FALSE)
+          .getItems()
+          .forEach(configMap -> addBlobStore(configMap, blobStoreManager));
 
-    client.configMaps().withLabel("nexus-type==repository").list().getItems().forEach(repoConfig -> createNewRepository(repository, repoConfig));
+      api.listNamespacedConfigMap(namespace, null, null, null, null, "nexus-type==repository", null, null, null, Boolean.FALSE)
+          .getItems()
+          .forEach(configMap -> createNewRepository(repository, configMap));
+    } catch (ApiException e) {
+      log.error("Error reading ConfigMaps", e);
+    }
   }
 
   void configureWatchers() {
-    Watch blobStoreConfigWatcher = client.configMaps().withLabel("nexus-type==blobstore").watch(new BlobStoreConfigWatcher(blobStoreManager));
+    try {
+      client.getHttpClient().setReadTimeout(0, SECONDS);
+      Watch<V1ConfigMap> blobstoreWatch = Watch.createWatch(client, api.listNamespacedConfigMapCall(namespace, null, null, null, null,
+          "nexus-type==blobstore", null, null, null, Boolean.TRUE, null, null), new TypeToken<Watch.Response<V1ConfigMap>>() {}.getType());
 
-    Watch repoConfigWatcher = client.configMaps().withLabel("nexus-type==repository").watch(new RepositoryConfigWatcher(repository, blobStoreManager));
-    watchers.add(blobStoreConfigWatcher);
-    watchers.add(repoConfigWatcher);
+      Consumer<V1ConfigMap> blobstoreConsumer = configMap -> BlobStoreConfigWatcher.addBlobStore(configMap, blobStoreManager);
+
+      WatcherThread blobStoreWatcherThread = new WatcherThread(blobstoreWatch, blobstoreConsumer);
+
+      Watch<V1ConfigMap> repositoryWatch = Watch.createWatch(client, api.listNamespacedConfigMapCall(namespace, null, null, null, null,
+          "nexus-type==repository", null, null, null, Boolean.TRUE, null, null), new TypeToken<Watch.Response<V1ConfigMap>>() {}.getType());
+
+      Consumer<V1ConfigMap> repositoryConsumer = configMap -> RepositoryConfigWatcher.createNewRepository(repository, configMap);
+
+      WatcherThread repoWatcherThread = new WatcherThread(repositoryWatch, repositoryConsumer);
+
+      watchers.add(blobStoreWatcherThread);
+      watchers.add(repoWatcherThread);
+      ForkJoinPool.commonPool().execute(blobStoreWatcherThread);
+      ForkJoinPool.commonPool().execute(repoWatcherThread);
+    } catch (ApiException e) {
+      log.error("Unable to configure watcher threads for ConfigMaps.", e);
+    }
   }
 
   void setAdminPassword() {
     try {
-      String password = client.secrets().withName("nexus").get().getData().getOrDefault("password", System.getenv().getOrDefault("NEXUS_PASSWORD", "admin123"));
+      V1Secret nexusSecret = api.readNamespacedSecret("nexus", "namespace", null, null, null);
+      String password = new String(nexusSecret.getData().getOrDefault("password".getBytes(), System.getenv().getOrDefault("NEXUS_PASSWORD", "admin123").getBytes()), Charset.defaultCharset());
       security.changePassword("admin", password);
     } catch (UserNotFoundException unfe) {
       log.warn("User 'admin' not found, unable to set password", unfe);
@@ -121,7 +171,8 @@ public class OpenShiftConfigPlugin extends LifecycleSupport {
 
   @Override
   protected void doStop() throws Exception {
-    watchers.forEach(Watch::close);
-    client.close();
+    watchers.forEach(watcher -> watcher.stop());
+    api = null;
+    client = null;
   }
 }

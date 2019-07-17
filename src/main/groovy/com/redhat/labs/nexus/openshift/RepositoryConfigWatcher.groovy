@@ -2,15 +2,13 @@ package com.redhat.labs.nexus.openshift
 
 
 import groovy.json.JsonSlurper
-import io.fabric8.kubernetes.api.model.ConfigMap
-import io.fabric8.kubernetes.client.KubernetesClientException
-import io.fabric8.kubernetes.client.Watcher
+import io.kubernetes.client.models.V1ConfigMap
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.sonatype.nexus.blobstore.api.BlobStoreManager
 import org.sonatype.nexus.repository.config.Configuration
 
-class RepositoryConfigWatcher implements Watcher<ConfigMap> {
+class RepositoryConfigWatcher {
 
   private static final Logger LOG = LoggerFactory.getLogger(RepositoryConfigWatcher.class)
 
@@ -22,14 +20,7 @@ class RepositoryConfigWatcher implements Watcher<ConfigMap> {
     this.blobStoreManager = blobStoreManager
   }
 
-  @Override
-  void eventReceived(Action action, ConfigMap configMap) {
-    if (action == Action.ADDED) {
-      createNewRepository(repository, configMap)
-    }
-  }
-
-  static void createNewRepository(RepositoryApi repository, ConfigMap configMap) {
+  static void createNewRepository(RepositoryApi repository, V1ConfigMap configMap) {
     String repositoryName = configMap.data.get("name")
     if (repositoryName != null) {
       def configMapJson = configMap.data.get("config") as String
@@ -56,10 +47,5 @@ class RepositoryConfigWatcher implements Watcher<ConfigMap> {
     } else {
       LOG.warn("Repository name is not set or repository already exists, refusing to recreate existing repository or unnamed repository")
     }
-  }
-
-  @Override
-  public void onClose(KubernetesClientException e) {
-    LOG.warn("Repository ConfigMap watcher has disconnected", e)
   }
 }
