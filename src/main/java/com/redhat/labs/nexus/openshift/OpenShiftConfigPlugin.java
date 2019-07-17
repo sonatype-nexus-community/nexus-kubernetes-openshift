@@ -51,27 +51,21 @@ import static org.sonatype.nexus.common.app.ManagedLifecycle.Phase.SERVICES;
 public class OpenShiftConfigPlugin extends LifecycleSupport {
   static final String TYPE = "openshift-kubernetes-plugin";
 
-  private static final Logger LOG = LoggerFactory.getLogger(OpenShiftConfigPlugin.class);
+  @Inject
+  BlobStoreManager blobStoreManager;
 
-  final BlobStoreManager blobStoreManager;
+  @Inject
+  RepositoryApi repository;
 
-  final RepositoryApi repository;
+  @Inject
+  SecuritySystem security;
 
-  final SecuritySystem security;
   private OpenShiftClient client;
 
   private List<Watch> watchers = new ArrayList<>();
 
-  @Inject
-  public OpenShiftConfigPlugin(
-      BlobStoreManager blobStoreManager,
-      RepositoryApi repository,
-      SecuritySystem security) throws Exception {
-    LOG.info("OpenShift/Kubernetes Plugin loading");
-    this.blobStoreManager = blobStoreManager;
-    this.repository = repository;
-    this.security = security;
-    LOG.info("OpenShift Plugin No-Args Constructor");
+  public OpenShiftConfigPlugin() {
+    log.info("OpenShift/Kubernetes Plugin loading");
   }
 
   @Override
@@ -80,21 +74,23 @@ public class OpenShiftConfigPlugin extends LifecycleSupport {
     // If running in OpenShift or K8s, it will automatically detect the correct settings
     // and service account credentials from the /run/secrets/kubernetes.io/serviceaccount
     // directory
-    LOG.info("OpenShift/Kubernetes Plugin starting");
+    log.info("OpenShift/Kubernetes Plugin starting");
     client = new DefaultOpenShiftClient();
     configureFromCluster();
   }
 
-  void configureFromCluster() throws UserNotFoundException {
-    if (client.settings().getConfiguration().getOauthToken() != null) {
-      LOG.info("OpenShift/Kubernetes client successfully configured");
+  void configureFromCluster() throws Exception {
+    try {
+      client.settings().getNamespace();
+      log.info("OpenShift/Kubernetes client successfully configured");
       setAdminPassword();
 
       readAndConfigure();
 
       configureWatchers();
-    } else {
-      LOG.warn("OpenShift/Kubernetes client could not be configured");
+    } catch (IllegalStateException ise) {
+      log.warn("OpenShift/Kubernetes client could not be configured", ise);
+      throw new Exception("Unable to configure k8s/OpenShift client", ise);
     }
   }
 
@@ -112,19 +108,20 @@ public class OpenShiftConfigPlugin extends LifecycleSupport {
     watchers.add(repoConfigWatcher);
   }
 
-  void setAdminPassword() throws UserNotFoundException {
-    MixedOperation secrets = client.secrets();
-    BaseOperation baseOperation = (BaseOperation) secrets.withName("nexus");
-    Secret nexusCredentials = (Secret) baseOperation.get();
-    String password = nexusCredentials.getData().getOrDefault("password", System.getenv().getOrDefault("NEXUS_PASSWORD", "admin123"));
-    security.changePassword("admin", password);
+  void setAdminPassword() {
+    try {
+      String password = client.secrets().withName("nexus").get().getData().getOrDefault("password", System.getenv().getOrDefault("NEXUS_PASSWORD", "admin123"));
+      security.changePassword("admin", password);
+    } catch (UserNotFoundException unfe) {
+      log.warn("User 'admin' not found, unable to set password", unfe);
+    } catch (Exception e) {
+      log.warn("An error occurred while retrieving Secrets from OpenShift");
+    }
   }
 
   @Override
   protected void doStop() throws Exception {
-    watchers.forEach(watch -> {
-      watch.close();
-    });
+    watchers.forEach(Watch::close);
     client.close();
   }
 }

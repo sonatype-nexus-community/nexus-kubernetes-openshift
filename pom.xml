@@ -84,16 +84,16 @@
       <classifier>bundle</classifier>
       <scope>compile</scope>
     </dependency>
-    <dependency>
-      <groupId>com.squareup.okhttp</groupId>
+<!--    <dependency>
+      <groupId>com.squareup.okhttp3</groupId>
       <artifactId>okhttp</artifactId>
-      <version>2.7.5</version>
+      <version>3.12.0</version>
     </dependency>
     <dependency>
       <groupId>com.squareup.okio</groupId>
       <artifactId>okio</artifactId>
       <version>1.16.0</version>
-    </dependency>
+    </dependency>-->
     <dependency>
       <groupId>org.spockframework</groupId>
       <artifactId>spock-core</artifactId>
@@ -202,8 +202,9 @@
             </Include-Resource>
             <!-- clear default to avoid spurious !* warnings -->
             <Private-Package/>
-            <Export-Package>com.redhat.labs.nexus.openshift</Export-Package>
-            <Import-Package>!org.apache.harmony.*,!com.android.*,!io.fabric8.*,!okhttp3.*,!com.squareup.*,!okio,!com.mifmif.common.regex,!dk.brics.automaton,!android.*,!dalvik.system,*</Import-Package>
+<!--            <Export-Package>dk.brics.automaton.*,com.mifmif.*,com.redhat.*,io.fabric8.*,okhttp3.*,okio.*,com.squareup.*</Export-Package>-->
+            <Export-Package>com.redhat.labs.nexus.*,org.conscrypt.*,org.apache.harmony.*,com.android.*,io.fabric8.*,okhttp3.*,com.squareup.*,okio,com.mifmif.common.regex.*,dk.brics.automaton,android.*,dalvik.system</Export-Package>
+            <Import-Package>!org.conscrypt.*,!org.apache.harmony.*,!com.android.*,!io.fabric8.*,!okhttp3.*,!com.squareup.*,!okio,!com.mifmif.common.*,!dk.brics.automaton,!android.*,!dalvik.system,*</Import-Package>
             <Embed-Dependency>*;scope=compile|runtime;inline=true</Embed-Dependency>
             <Bundle-ClassPath>.,{maven-dependencies}</Bundle-ClassPath>
           </instructions>
