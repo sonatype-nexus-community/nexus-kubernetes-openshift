@@ -80,6 +80,7 @@ public class OpenShiftConfigPlugin extends LifecycleSupport {
     // If running in OpenShift or K8s, it will automatically detect the correct settings
     // and service account credentials from the /run/secrets/kubernetes.io/serviceaccount
     // directory
+    LOG.info("OpenShift/Kubernetes Plugin starting");
     client = new DefaultOpenShiftClient();
     configureFromCluster();
   }
