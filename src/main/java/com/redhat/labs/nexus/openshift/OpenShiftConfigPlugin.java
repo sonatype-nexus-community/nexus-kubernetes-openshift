@@ -21,6 +21,7 @@ package com.redhat.labs.nexus.openshift;
  */
 
 import io.fabric8.kubernetes.api.model.Secret;
+import io.fabric8.kubernetes.client.Watch;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.base.BaseOperation;
 import io.fabric8.openshift.client.DefaultOpenShiftClient;
@@ -36,6 +37,9 @@ import org.sonatype.nexus.security.user.UserNotFoundException;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.redhat.labs.nexus.openshift.BlobStoreConfigWatcher.addBlobStore;
 import static com.redhat.labs.nexus.openshift.RepositoryConfigWatcher.createNewRepository;
@@ -54,6 +58,9 @@ public class OpenShiftConfigPlugin extends LifecycleSupport {
   final RepositoryApi repository;
 
   final SecuritySystem security;
+  private OpenShiftClient client;
+
+  private List<Watch> watchers = new ArrayList<>();
 
   @Inject
   public OpenShiftConfigPlugin(
@@ -73,41 +80,50 @@ public class OpenShiftConfigPlugin extends LifecycleSupport {
     // If running in OpenShift or K8s, it will automatically detect the correct settings
     // and service account credentials from the /run/secrets/kubernetes.io/serviceaccount
     // directory
-    try (OpenShiftClient client = new DefaultOpenShiftClient()) {
-      configureFromCluster(client);
-    }
+    client = new DefaultOpenShiftClient();
+    configureFromCluster();
   }
 
-  void configureFromCluster(OpenShiftClient client) throws UserNotFoundException {
+  void configureFromCluster() throws UserNotFoundException {
     if (client.settings().getConfiguration().getOauthToken() != null) {
       LOG.info("OpenShift/Kubernetes client successfully configured");
-      setAdminPassword(client);
+      setAdminPassword();
 
-      readAndConfigure(client);
+      readAndConfigure();
 
-      configureWatchers(client);
+      configureWatchers();
     } else {
       LOG.warn("OpenShift/Kubernetes client could not be configured");
     }
   }
 
-  void readAndConfigure(OpenShiftClient client) {
+  void readAndConfigure() {
     client.configMaps().withLabel("nexus-type==blobstore").list().getItems().forEach(blobStore -> addBlobStore(blobStore, blobStoreManager));
 
     client.configMaps().withLabel("nexus-type==repository").list().getItems().forEach(repoConfig -> createNewRepository(repository, repoConfig));
   }
 
-  void configureWatchers(OpenShiftClient client) {
-    client.configMaps().withLabel("nexus-type==blobstore").watch(new BlobStoreConfigWatcher(blobStoreManager));
+  void configureWatchers() {
+    Watch blobStoreConfigWatcher = client.configMaps().withLabel("nexus-type==blobstore").watch(new BlobStoreConfigWatcher(blobStoreManager));
 
-    client.configMaps().withLabel("nexus-type==repository").watch(new RepositoryConfigWatcher(repository, blobStoreManager));
+    Watch repoConfigWatcher = client.configMaps().withLabel("nexus-type==repository").watch(new RepositoryConfigWatcher(repository, blobStoreManager));
+    watchers.add(blobStoreConfigWatcher);
+    watchers.add(repoConfigWatcher);
   }
 
-  void setAdminPassword(OpenShiftClient client) throws UserNotFoundException {
+  void setAdminPassword() throws UserNotFoundException {
     MixedOperation secrets = client.secrets();
     BaseOperation baseOperation = (BaseOperation) secrets.withName("nexus");
     Secret nexusCredentials = (Secret) baseOperation.get();
     String password = nexusCredentials.getData().getOrDefault("password", System.getenv().getOrDefault("NEXUS_PASSWORD", "admin123"));
     security.changePassword("admin", password);
+  }
+
+  @Override
+  protected void doStop() throws Exception {
+    watchers.forEach(watch -> {
+      watch.close();
+    });
+    client.close();
   }
 }
