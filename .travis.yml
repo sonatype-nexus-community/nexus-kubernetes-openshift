@@ -1,5 +1,4 @@
 language: java
-if: tag IS present
 addons:
   sonarcloud:
     organization: "infosec812-github" # the key of the org you chose at step #3
