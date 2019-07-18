@@ -26,7 +26,7 @@
 
   <groupId>com.redhat.labs.nexus</groupId>
   <artifactId>nexus-openshift-plugin</artifactId>
-  <version>0.0.12-SNAPSHOT</version>
+  <version>0.0.13-SNAPSHOT</version>
   <name>${project.groupId}:${project.artifactId}</name>
   <packaging>bundle</packaging>
   <description>Nexus Kubernetes/OpenShift Configuration Plugin</description>
@@ -55,6 +55,31 @@
     <jacoco.version>0.8.4</jacoco.version>
     <example.test>${settings.localRepository}</example.test>
   </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>2.9.9.1</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.karaf.shell</groupId>
+        <artifactId>org.apache.karaf.shell.core</artifactId>
+        <version>4.2.6</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.karaf.shell</groupId>
+        <artifactId>org.apache.karaf.shell.commands</artifactId>
+        <version>4.2.6</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.karaf.jaas</groupId>
+        <artifactId>org.apache.karaf.jaas.boot</artifactId>
+        <version>4.2.6</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
   <dependencies>
     <dependency>
@@ -136,7 +161,7 @@
         <configuration>
           <formats>HTML,JUNIT</formats>
           <failBuildOnCVSS>8</failBuildOnCVSS>
-          <suppressionFiles>${project.basedir}${file.separator}owasp-dependency-check-suppression.xml</suppressionFiles>
+          <suppressionFiles>owasp-dependency-check-supression.xml</suppressionFiles>
         </configuration>
         <executions>
           <execution>
