@@ -1,8 +1,10 @@
 language: java
 if: tag IS present
+before_cache:
+  - export MAVEN_LOCAL_REPOSITORY=$(mvn -B help:evaluate -Dexpression=settings.localRepository -q -DforceStdout)
 cache:
   directories:
-    - $HOME/.m2/repository/org/owasp/dependency-check-data/4.0/cache
+    - $MAVEN_LOCAL_REPOSITORY
 addons:
   sonarcloud:
     organization: "infosec812-github" # the key of the org you chose at step #3
