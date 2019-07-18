@@ -26,7 +26,7 @@
 
   <groupId>com.redhat.labs.nexus</groupId>
   <artifactId>nexus-openshift-plugin</artifactId>
-  <version>0.0.17-SNAPSHOT</version>
+  <version>0.0.18-SNAPSHOT</version>
   <name>${project.groupId}:${project.artifactId}</name>
   <packaging>bundle</packaging>
   <description>Nexus Kubernetes/OpenShift Configuration Plugin</description>
@@ -52,10 +52,13 @@
     <pluginName>Nexus openshift Plugin</pluginName>
     <pluginDescription>Adds support for OpenShift configuration and authentication</pluginDescription>
     <sonar.projectName>${project.description}</sonar.projectName>
+    <sonar.organization>infosec812-github</sonar.organization>
+    <sonar.projectKey>${project.groupId}:${project.artifactId}</sonar.projectKey>
     <jacoco.version>0.8.4</jacoco.version>
     <example.test>${settings.localRepository}</example.test>
   </properties>
 
+  <!-- Override some dependency versions to eliminate vulnerabilities -->
   <dependencyManagement>
     <dependencies>
       <dependency>
