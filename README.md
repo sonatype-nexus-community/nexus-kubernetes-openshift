@@ -39,6 +39,17 @@
   </settings>
   ```
 
+## Configuration
+For the most part, you should NOT need to do anything to configure this plugin. It will detect if it is
+running inside of a Kubernetes/OpenShift cluster and default to using the service account settings
+and environment variables defined in the Pod/Container. If you need to run this outside of 
+a cluster but want to point at K8s API for configuration, you can assume the code will:
+
+   *   If $KUBECONFIG is defined, use that config file.
+   *   If $HOME/.kube/config can be found, use that.
+   *   If the in-cluster service account can be found, assume in cluster config.
+   *   Default to localhost:8080 as a last resort.
+
 ## Building
 ```bash
 mvn clean package bundle:bundle
