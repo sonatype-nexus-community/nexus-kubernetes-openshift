@@ -8,7 +8,8 @@ cache:
 addons:
   sonarcloud:
     organization: "infosec812-github" # the key of the org you chose at step #3
-    token: "${SONAR_CLOUD_TOKEN}"
+    token:
+      secure: "AEFu6OG/l8QKl30LbNtElityVPEs/dR0Y3tVZZ1tCELjxns3lKzq/mDC1qZ8l4Sc0hDkE1DSRKigCW0XIGnzIS1LLMLN524jPOGFIku4c+j6Xn5BjKFqhT5tLcbDd6Yk0xf2TmEzQNITC17E7Ut9Y2n8IFMBfVsqawjxRnyI/VF1RZIKPOzxp1q6jwoVk/rwH8rh2GTeEtyTyAldBI+6hbvXR2b7cVLf9iyxSOmGmIQjG7w1TYslBTxoqff5JtXUbDayx6Pyww9rJUV38eK29zDkGR9DOXWXpb/3gIuq+4cPeBuQ5pVt/1syL8nYPicJ/4Fd4bwQhnqsBtu32kfbG1nLBxzUP27xKpKUNUq8hC+fkeKDI1+E0LyVO7Vj+iuLdEGuk3oUVhDpskqyWAcKZrIMxZwXvosehDGauQ8vAtjCekAGm+j1BQF8sWpijsl5f2BW0vJbMr3gJ+litwJk91rpehPrFSGHioZggKb7vF2SWhGMtnFgNQrTRAST7NJXkDKLRNMVitidT+ACcdOHKdh6w/e685Z45V2GfMB63Om8IZAjFOWhzWOXJkuseWa+Fi04Ys4PwX3VeZxTq87zh6KY/Bw37b65erMvfxfrj7JjWby1tP8pQwSg8RByeHmgPBTSKT/PyL/i/cyiZ0PXHHXxy6GGpzDQdK/wk/aFFGU="
 jdk:
   - openjdk8
 script:
