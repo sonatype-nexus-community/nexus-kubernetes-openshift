@@ -2,6 +2,14 @@
 
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=com.redhat.labs.nexus%3Anexus-openshift-plugin%3A3.0&metric=alert_status)](https://sonarcloud.io/dashboard?id=com.redhat.labs.nexus%3Anexus-openshift-plugin%3A3.0)
 [![Build Status](https://travis-ci.com/InfoSec812/nexus-kubernetes-openshift.svg?branch=master)](https://travis-ci.com/InfoSec812/nexus-kubernetes-openshift)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=com.redhat.labs.nexus%3Anexus-openshift-plugin%3A3.0&metric=coverage)](https://sonarcloud.io/dashboard?id=com.redhat.labs.nexus%3Anexus-openshift-plugin%3A3.0)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=com.redhat.labs.nexus%3Anexus-openshift-plugin%3A3.0&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=com.redhat.labs.nexus%3Anexus-openshift-plugin%3A3.0)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=com.redhat.labs.nexus%3Anexus-openshift-plugin%3A3.0&metric=bugs)](https://sonarcloud.io/dashboard?id=com.redhat.labs.nexus%3Anexus-openshift-plugin%3A3.0)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=com.redhat.labs.nexus%3Anexus-openshift-plugin%3A3.0&metric=code_smells)](https://sonarcloud.io/dashboard?id=com.redhat.labs.nexus%3Anexus-openshift-plugin%3A3.0)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=com.redhat.labs.nexus%3Anexus-openshift-plugin%3A3.0&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=com.redhat.labs.nexus%3Anexus-openshift-plugin%3A3.0)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=com.redhat.labs.nexus%3Anexus-openshift-plugin%3A3.0&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=com.redhat.labs.nexus%3Anexus-openshift-plugin%3A3.0)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=com.redhat.labs.nexus%3Anexus-openshift-plugin%3A3.0&metric=security_rating)](https://sonarcloud.io/dashboard?id=com.redhat.labs.nexus%3Anexus-openshift-plugin%3A3.0)
+
 ## Purpose
 * Allow for BlobStores to be configured using ConfigMap objects labelled `nexus-type==blobstore`
 * Allow for Repositories to be configured using ConfigMap objects labelled `nexus-type==repository`
