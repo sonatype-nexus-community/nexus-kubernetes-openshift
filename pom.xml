@@ -26,7 +26,7 @@
 
   <groupId>com.redhat.labs.nexus</groupId>
   <artifactId>nexus-openshift-plugin</artifactId>
-  <version>0.0.9-SNAPSHOT</version>
+  <version>0.0.10-SNAPSHOT</version>
   <name>${project.groupId}:${project.artifactId}</name>
   <packaging>bundle</packaging>
   <description>Nexus Kubernetes/OpenShift Configuration Plugin</description>
@@ -128,6 +128,23 @@
 
   <build>
     <plugins>
+      <plugin>
+        <groupId>org.owasp</groupId>
+        <artifactId>dependency-check-maven</artifactId>
+        <version>5.1.1</version>
+        <configuration>
+          <formats>HTML,JUNIT</formats>
+          <failBuildOnCVSS>8</failBuildOnCVSS>
+          <suppressionFiles>owasp-dependency-check-suppression.xml</suppressionFiles>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <groupId>org.codehaus.gmavenplus</groupId>
         <artifactId>gmavenplus-plugin</artifactId>
