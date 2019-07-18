@@ -34,12 +34,6 @@ public class BlobStoreConfigWatcher {
 
   private static final Logger LOG = LoggerFactory.getLogger(BlobStoreConfigWatcher.class);
 
-  private BlobStoreManager manager;
-
-  public BlobStoreConfigWatcher(BlobStoreManager manager) {
-    this.manager = manager;
-  }
-
   public void addBlobStore(V1ConfigMap configMap, BlobStoreManager manager) {
     String blobStoreName = configMap.getData().get("name");
     // If the blobStoreName is defined and the blobstore does not already exist
