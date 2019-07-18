@@ -95,7 +95,7 @@ public class OpenShiftConfigPlugin extends LifecycleSupport {
     // and service account credentials from the /run/secrets/kubernetes.io/serviceaccount
     // directory
     repositoryConfigWatcher = new RepositoryConfigWatcher(repository, blobStoreManager);
-    blobStoreConfigWatcher = new BlobStoreConfigWatcher(blobStoreManager);
+    blobStoreConfigWatcher = new BlobStoreConfigWatcher();
     log.info("OpenShift/Kubernetes Plugin starting");
     File namespaceFile = new File(SERVICE_ACCOUNT_NAMESPACE_FILE);
     namespace = null;
