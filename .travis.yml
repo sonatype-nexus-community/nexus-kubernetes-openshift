@@ -7,7 +7,7 @@ jdk:
   - openjdk8
 script:
   - mvn clean package bundle:bundle
-  - sonar-scanner
+  - sonar-scanner -Dsonar.projectKey="com.redhat.labs.nexus:nexus-openshift-plugin"
 before_deploy:
   - export BUNDLE_JAR=$(ls nexus*jar)
   - echo "deploying $BUNDLE_JAR to GitHub releases"
