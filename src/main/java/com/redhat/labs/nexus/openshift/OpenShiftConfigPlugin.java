@@ -52,10 +52,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.sonatype.nexus.common.app.ManagedLifecycle.Phase.SERVICES;
 
 /**
- * Entrypoint for this plugin... When started, the plugin will create a Kubernetes
- * API client which will automatically try to configure itself. Once the client
- * is created, the client will be used to pull Secrets and ConfigMaps from the K8s
- * API in order to provision blobstores, repositories, and the admin password.
+ * Entrypoint for this plugin...
  */
 @Named(OpenShiftConfigPlugin.TYPE)
 @Singleton
@@ -63,6 +60,10 @@ import static org.sonatype.nexus.common.app.ManagedLifecycle.Phase.SERVICES;
 public class OpenShiftConfigPlugin extends LifecycleSupport {
   static final String TYPE = "openshift-kubernetes-plugin";
   private static final String SERVICE_ACCOUNT_NAMESPACE_FILE = "/run/secrets/kubernetes.io/serviceaccount/namespace";
+
+  // ***************************************************************************
+  // *** Fields and methods are left 'package-private' to facilitate testing ***
+  // ***************************************************************************
 
   @Inject
   BlobStoreManager blobStoreManager;
@@ -82,10 +83,11 @@ public class OpenShiftConfigPlugin extends LifecycleSupport {
   String namespace;
   private List<WatcherThread> watchers = new ArrayList<>();
 
-  public OpenShiftConfigPlugin() {
-    log.info("OpenShift/Kubernetes Plugin loading");
-  }
-
+  /**
+   * Called by the Nexus LifecyleManager, this method initializes all required
+   * clients and configuratios.
+   * @throws Exception If there is an error initializing the Kubernetes client
+   */
   @Override
   protected void doStart() throws Exception {
     // This supports both stock K8s AND OpenShift so we don't have to use one or the other.
@@ -116,6 +118,11 @@ public class OpenShiftConfigPlugin extends LifecycleSupport {
     }
   }
 
+  /**
+   * Checks to see if the Kubernetes client is configured, then calls methods for
+   * remaining operations.
+   * @throws Exception
+   */
   void configureFromCluster() throws Exception {
     try {
       client.getBasePath();
@@ -129,6 +136,11 @@ public class OpenShiftConfigPlugin extends LifecycleSupport {
     }
   }
 
+  /**
+   * Reads ConfigMaps with particular labels from the Kubernetes API and uses those
+   * configurations to provision {@link org.sonatype.nexus.blobstore.api.BlobStore} and
+   * {@link org.sonatype.nexus.repository.Repository} instances.
+   */
   void readAndConfigure() {
     try {
       api.listNamespacedConfigMap(namespace, null, null, null, null, "nexus-type==blobstore", null, null, null, Boolean.FALSE)
@@ -143,18 +155,26 @@ public class OpenShiftConfigPlugin extends LifecycleSupport {
     }
   }
 
-  Watch<V1ConfigMap> buildWatcher(String labelSelector) throws ApiException {
-    Call blobWatchCall = api.listNamespacedConfigMapCall(namespace, null, null, null, null,
-        labelSelector, null, null, null, Boolean.TRUE, null, null);
-    return Watch.createWatch(client, blobWatchCall, new TypeToken<Watch.Response<V1ConfigMap>>() {}.getType());
-  }
-
+  /**
+   * Given a label selector and a {@link Consumer} to handle the results, creates a
+   * {@link Watch} and {@link WatcherThread} in order to get updates from the
+   * Kubernetes API at runtime
+   * @param labelSelector A valid label selector for the Kubernetes API {@see https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/}
+   * @param consumer An instance of {@link Consumer} which accepts a {@link V1ConfigMap} and uses it to provision the appropriate resource
+   * @throws ApiException
+   */
   void addWatcher(String labelSelector, Consumer<V1ConfigMap> consumer) throws ApiException {
-    WatcherThread watcherThread = new WatcherThread(buildWatcher(labelSelector), consumer);
+    Call watchCall = api.listNamespacedConfigMapCall(namespace, null, null, null, null,
+        labelSelector, null, null, null, Boolean.TRUE, null, null);
+    Watch watch = Watch.createWatch(client, watchCall, new TypeToken<Watch.Response<V1ConfigMap>>() {}.getType());
+    WatcherThread<V1ConfigMap> watcherThread = new WatcherThread(watch, consumer);
     watchers.add(watcherThread);
     ForkJoinPool.commonPool().execute(watcherThread);
   }
 
+  /**
+   * Creates and starts threads to monitor for changes to monitored ConfigMaps
+   */
   void configureWatchers() {
     try {
       client.getHttpClient().setReadTimeout(0, SECONDS);
@@ -165,6 +185,14 @@ public class OpenShiftConfigPlugin extends LifecycleSupport {
     }
   }
 
+  /**
+   * Uses the Kubernetes API to find a {@link V1Secret} named 'nexus' and uses the password
+   * field to set the admin password for Nexus. If no secret is found, it will:
+   *
+   * - Check for an environment variable `NEXUS_PASSWORD`
+   *
+   * - Default to "admin123"
+   */
   void setAdminPassword() {
     log.debug("Entering setAdminPassword");
     try {
@@ -188,6 +216,10 @@ public class OpenShiftConfigPlugin extends LifecycleSupport {
     }
   }
 
+  /**
+   * When this bundle is stopped, clean up before we exit.
+   * @throws Exception
+   */
   @Override
   protected void doStop() throws Exception {
     watchers.forEach(watcher -> watcher.stop());

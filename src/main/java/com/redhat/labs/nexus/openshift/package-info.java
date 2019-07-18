@@ -21,5 +21,8 @@ package com.redhat.labs.nexus.openshift;
  */
 
 /*
- *
+ * When started, the plugin will create a Kubernetes
+ * API client which will automatically try to configure itself. Once the client
+ * is created, the client will be used to pull Secrets and ConfigMaps from the K8s
+ * API in order to provision blobstores, repositories, and the admin password.
  */

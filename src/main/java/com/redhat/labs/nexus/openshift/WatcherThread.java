@@ -20,45 +20,49 @@ package com.redhat.labs.nexus.openshift;
  * #L%
  */
 
-import io.kubernetes.client.models.V1ConfigMap;
 import io.kubernetes.client.util.Watch;
 import org.sonatype.goodies.common.ComponentSupport;
 
 import java.util.function.Consumer;
 
 /**
- * An implementation of {@link Runnable} which monitors a Kubernetes API watch
- * for events and then acts on those events.
+ * An implementation of {@link Runnable} which monitors a Kubernetes API
+ * {@link Watch} for events and then acts on those events.
  */
-public class WatcherThread extends ComponentSupport implements Runnable {
+public class WatcherThread<T> extends ComponentSupport implements Runnable {
 
-  final Consumer<V1ConfigMap> consumer;
+  private final Consumer<T> consumer;
 
-  final Watch<V1ConfigMap> watch;
+  private final Watch<T> watch;
 
   private Boolean run = Boolean.TRUE;
 
-  public WatcherThread(Watch<V1ConfigMap> watch, Consumer<V1ConfigMap> consumer) {
+  /**
+   * Accepts a {@link Watch} and a {@link Consumer} which acts on the watched resources
+   * @param watch An instance of {@link Watch} which which will be monitored for updated
+   * @param consumer An implementaton of {@link Consumer} which will handle updated items
+   */
+  WatcherThread(Watch<T> watch, Consumer<T> consumer) {
     this.watch = watch;
     this.consumer = consumer;
   }
 
   @Override
   public void run() {
-    for (Watch.Response<V1ConfigMap> response: watch) {
-      if (!run.booleanValue()) {
+    for (Watch.Response<T> response: watch) {
+      if (!run) {
         break;
       }
-      if (response.type == "ADDED") {
+      if (response.type.contentEquals("ADDED")) {
         consumer.accept(response.object);
       } else {
         // ONLY ADDED OPERATIONS ARE SUPPORTED!
-        log.info(String.format("Watch reponse type %s is not supported.", response.type));
+        log.info("Watch reponse type {}} is not supported.", response.type);
       }
     }
   }
 
-  public void stop() {
+  void stop() {
     this.run = Boolean.FALSE;
   }
 }
