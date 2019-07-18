@@ -121,7 +121,7 @@ public class OpenShiftConfigPlugin extends LifecycleSupport {
   /**
    * Checks to see if the Kubernetes client is configured, then calls methods for
    * remaining operations.
-   * @throws Exception
+   * @throws Exception When there is an error from the Kubernetes API client
    */
   void configureFromCluster() throws Exception {
     try {
@@ -161,13 +161,13 @@ public class OpenShiftConfigPlugin extends LifecycleSupport {
    * Kubernetes API at runtime
    * @param labelSelector A valid label selector for the Kubernetes API {@see https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/}
    * @param consumer An instance of {@link Consumer} which accepts a {@link V1ConfigMap} and uses it to provision the appropriate resource
-   * @throws ApiException
+   * @throws ApiException When there is an error from the Kubernetes API client
    */
   void addWatcher(String labelSelector, Consumer<V1ConfigMap> consumer) throws ApiException {
     Call watchCall = api.listNamespacedConfigMapCall(namespace, null, null, null, null,
         labelSelector, null, null, null, Boolean.TRUE, null, null);
     Watch watch = Watch.createWatch(client, watchCall, new TypeToken<Watch.Response<V1ConfigMap>>() {}.getType());
-    WatcherThread<V1ConfigMap> watcherThread = new WatcherThread(watch, consumer);
+    WatcherThread watcherThread = new WatcherThread<>(watch, consumer);
     watchers.add(watcherThread);
     ForkJoinPool.commonPool().execute(watcherThread);
   }
@@ -201,7 +201,7 @@ public class OpenShiftConfigPlugin extends LifecycleSupport {
         log.debug("V1Secret retrieved");
         Map<String, byte[]> secretData = nexusSecret.getData();
         log.debug("Displaying keys and values from Secret");
-        secretData.keySet().stream().forEach(s -> log.debug(String.format("%s:%s", s, new String(secretData.get(s)))));
+        secretData.keySet().forEach(s -> log.debug("{}:{}", s, new String(secretData.get(s))));
         String password = new String(secretData.getOrDefault("password", System.getenv().getOrDefault("NEXUS_PASSWORD", "admin123").getBytes()));
         log.debug("Setting admin password to '{}'", password);
         security.changePassword("admin", password);
@@ -218,11 +218,10 @@ public class OpenShiftConfigPlugin extends LifecycleSupport {
 
   /**
    * When this bundle is stopped, clean up before we exit.
-   * @throws Exception
    */
   @Override
-  protected void doStop() throws Exception {
-    watchers.forEach(watcher -> watcher.stop());
+  protected void doStop() {
+    watchers.forEach(WatcherThread::stop);
     api = null;
     client = null;
   }
