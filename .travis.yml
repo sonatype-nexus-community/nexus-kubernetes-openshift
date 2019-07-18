@@ -1,12 +1,17 @@
 language: java
+addons:
+  sonarcloud:
+    organization: "infosec812-github" # the key of the org you chose at step #3
+    token: "${SONAR_CLOUD_TOKEN}"
 jdk:
   - openjdk8
+script: mvn clean package sonar:sonar bundle:bundle
 before_deploy:
   - export BUNDLE_JAR=$(ls nexus*jar)
   - echo "deploying $BUNDLE_JAR to GitHub releases"
 deploy:
   provider: releases
-  api_key: "GITHUB OAUTH TOKEN"
+  api_key: "${GITHUB_OAUTH_TOKEN}"
   file: "${BUNDLE_JAR}"
   skip_cleanup: true
   on:

@@ -26,8 +26,10 @@
 
   <groupId>com.redhat.labs.nexus</groupId>
   <artifactId>nexus-openshift-plugin</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
   <name>${project.groupId}:${project.artifactId}</name>
   <packaging>bundle</packaging>
+  <description>Nexus Kubernetes/OpenShift Configuration Plugin</description>
 
   <organization>
     <name>Red Hat</name>
@@ -49,6 +51,7 @@
     <maven.compiler.source>1.8</maven.compiler.source>
     <pluginName>Nexus openshift Plugin</pluginName>
     <pluginDescription>Adds support for OpenShift configuration and authentication</pluginDescription>
+    <sonar.projectName>${project.description}</sonar.projectName>
   </properties>
 
   <dependencies>
@@ -141,11 +144,26 @@
         <version>2.20.1</version>
         <configuration>
           <useFile>false</useFile>
+          <parallel>methods</parallel>
+          <useUnlimitedThreads>true</useUnlimitedThreads>
           <includes>
             <include>**/*Test.java</include>
             <include>**/*Spec.java</include>
           </includes>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>0.8.4</version>
+        <executions>
+          <execution>
+            <id>prepare-agent</id>
+            <goals>
+              <goal>prepare-agent</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
