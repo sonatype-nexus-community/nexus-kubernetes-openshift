@@ -6,3 +6,6 @@
 .project
 target
 **/*.iml
+*.jar
+deploy
+serviceaccount
