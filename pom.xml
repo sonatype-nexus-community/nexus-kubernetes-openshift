@@ -26,7 +26,7 @@
 
   <groupId>com.redhat.labs.nexus</groupId>
   <artifactId>nexus-openshift-plugin</artifactId>
-  <version>0.0.10-SNAPSHOT</version>
+  <version>0.0.11-SNAPSHOT</version>
   <name>${project.groupId}:${project.artifactId}</name>
   <packaging>bundle</packaging>
   <description>Nexus Kubernetes/OpenShift Configuration Plugin</description>
@@ -135,7 +135,7 @@
         <configuration>
           <formats>HTML,JUNIT</formats>
           <failBuildOnCVSS>8</failBuildOnCVSS>
-          <suppressionFiles>owasp-dependency-check-suppression.xml</suppressionFiles>
+          <suppressionFiles>${project.basedir}${file.separator}owasp-dependency-check-suppression.xml</suppressionFiles>
         </configuration>
         <executions>
           <execution>
