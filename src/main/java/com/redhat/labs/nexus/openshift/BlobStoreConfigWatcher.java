@@ -1,8 +1,26 @@
 package com.redhat.labs.nexus.openshift;
 
-import io.fabric8.kubernetes.api.model.ConfigMap;
-import io.fabric8.kubernetes.client.KubernetesClientException;
-import io.fabric8.kubernetes.client.Watcher;
+/*-
+ * #%L
+ * com.redhat.labs.nexus:nexus-openshift-plugin
+ * %%
+ * Copyright (C) 2008 - 2019 Red Hat
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
+
+import io.kubernetes.client.models.V1ConfigMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonatype.nexus.blobstore.api.BlobStoreConfiguration;
@@ -12,7 +30,7 @@ import org.sonatype.nexus.blobstore.api.BlobStoreManager;
  * A watcher for BlobStore configurations for Nexus. This watcher will NEVER DELETE BLOBSTORES, ONLY CREATE
  */
 
-public class BlobStoreConfigWatcher implements Watcher<ConfigMap> {
+public class BlobStoreConfigWatcher {
 
   private static final Logger LOG = LoggerFactory.getLogger(BlobStoreConfigWatcher.class);
 
@@ -22,19 +40,7 @@ public class BlobStoreConfigWatcher implements Watcher<ConfigMap> {
     this.manager = manager;
   }
 
-  @Override
-  public void eventReceived(Action action, ConfigMap configMap) {
-
-    // Only do something when a new blobstore ConfigMap is created, never delete or modify in
-    // order to prevent loss of existing data
-    if (action == Action.ADDED) {
-      addBlobStore(configMap, manager);
-    } else {
-      LOG.info(String.format("Watcher ignoring action type '%s' on BlobStore ConfigMaps", action.toString()));
-    }
-  }
-
-  public static void addBlobStore(ConfigMap configMap, BlobStoreManager manager) {
+  public void addBlobStore(V1ConfigMap configMap, BlobStoreManager manager) {
     String blobStoreName = configMap.getData().get("name");
     // If the blobStoreName is defined and the blobstore does not already exist
     if (blobStoreName != null && !manager.exists(blobStoreName)) {
@@ -52,10 +58,5 @@ public class BlobStoreConfigWatcher implements Watcher<ConfigMap> {
         LOG.error(String.format("Unable to create blobstore named '%s'", blobStoreName), e);
       }
     }
-  }
-
-  @Override
-  public void onClose(KubernetesClientException e) {
-    LOG.warn("K8s client watcher for BlobStore ConfigMaps has closed");
   }
 }

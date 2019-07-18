@@ -78,21 +78,9 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>io.fabric8</groupId>
-      <artifactId>openshift-client</artifactId>
-      <version>4.3.0</version>
-      <classifier>bundle</classifier>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.squareup.okhttp</groupId>
-      <artifactId>okhttp</artifactId>
-      <version>2.7.5</version>
-    </dependency>
-    <dependency>
-      <groupId>com.squareup.okio</groupId>
-      <artifactId>okio</artifactId>
-      <version>1.16.0</version>
+      <groupId>io.kubernetes</groupId>
+      <artifactId>client-java</artifactId>
+      <version>5.0.0</version>
     </dependency>
     <dependency>
       <groupId>org.spockframework</groupId>
@@ -111,6 +99,12 @@
       <groupId>org.objenesis</groupId>
       <artifactId>objenesis</artifactId>
       <version>2.6</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>cglib</groupId>
+      <artifactId>cglib</artifactId>
+      <version>3.2.12</version>
       <scope>test</scope>
     </dependency>
 
@@ -142,23 +136,6 @@
           </dependency>
         </dependencies>
       </plugin>
-<!--      <plugin>
-        &lt;!&ndash; The gmavenplus plugin is used to compile Groovy code. To learn more about this plugin,
-        visit https://github.com/groovy/GMavenPlus/wiki &ndash;&gt;
-        <groupId>org.codehaus.gmavenplus</groupId>
-        <artifactId>gmavenplus-plugin</artifactId>
-        <version>1.7.1</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>compile</goal>
-              <goal>compileTests</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>-->
-      <!-- Optional plugins for using Spock -->
-      <!-- Only required if names of spec classes don't match default Surefire patterns (`*Test` etc.) -->
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>2.20.1</version>
@@ -193,6 +170,7 @@
         <extensions>true</extensions>
         <configuration>
           <unpackBundle>true</unpackBundle>
+          <buildDirectory>${project.basedir}</buildDirectory>
           <instructions>
             <!-- relax range to account for guava versioning -->
             <_consumer-policy>$(version;==)</_consumer-policy>
@@ -202,8 +180,9 @@
             </Include-Resource>
             <!-- clear default to avoid spurious !* warnings -->
             <Private-Package/>
-            <Export-Package>com.redhat.labs.nexus.openshift</Export-Package>
-            <Import-Package>!org.apache.harmony.*,!com.android.*,!io.fabric8.*,!okhttp3.*,!com.squareup.*,!okio,!com.mifmif.common.regex,!dk.brics.automaton,!android.*,!dalvik.system,*</Import-Package>
+<!--            <Export-Package>dk.brics.automaton.*,com.mifmif.*,com.redhat.*,io.fabric8.*,okhttp3.*,okio.*,com.squareup.*</Export-Package>-->
+            <Export-Package>com.google.gson.*,org.joda.*;-split-package:=merge-last,io.sundr.*;-split-package:=merge-last,com.redhat.labs.nexus.*,io.kubernetes.*;-split-package:=first,com.squareup.*,okio,com.google.protobuf.*</Export-Package>
+            <Import-Package>!com.google.gson.*,!org.joda.*,!io.sundr.*;-split-package:=merge-last,!com.squareup.*,!io.kubernetes.*;-split-package:=first,!okio,!dalvik.system,!com.android.*,!android.*,!com.google.protobuf.*,!com.microsoft.aad.*,!com.sun.tools.javac.*,!com.werken.*,!org.apache.harmony.*,!org.apache.log.*,!org.jdom.*,!org.apache.oro.*,*</Import-Package>
             <Embed-Dependency>*;scope=compile|runtime;inline=true</Embed-Dependency>
             <Bundle-ClassPath>.,{maven-dependencies}</Bundle-ClassPath>
           </instructions>

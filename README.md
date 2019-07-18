@@ -39,8 +39,18 @@
 
 ## Building
 ```bash
-mvn clean install -PbuildKar
+mvn clean package bundle:bundle
 ```
+The **BUNDLE** jar file will be output in the project's root directory.
 
-## Installing?
-Still trying to figure this out!
+
+## Installing
+You can copy the bundle to `/opt/sonatype/nexus/deploy` on any running Nexus container, but it would not be persistent across restarts.
+The simplest option is to build a new container image based on the sonatype/nexus3 container and add the bundle JAR file to the new image.
+Here's an example Dockerfile:
+
+```dockerfile
+FROM sonatype/nexus3:latest
+
+COPY /path/to/bundle/nexus-openshift-plugin-3.17.0-01.jar /opt/sonatype/nexus/deploy
+```
