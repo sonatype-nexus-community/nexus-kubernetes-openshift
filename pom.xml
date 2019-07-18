@@ -56,7 +56,6 @@
     <sonar.projectKey>${project.groupId}:${project.artifactId}</sonar.projectKey>
     <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     <jacoco.version>0.8.4</jacoco.version>
-    <example.test>${settings.localRepository}</example.test>
   </properties>
 
   <!-- Override some dependency versions to eliminate vulnerabilities -->
@@ -163,7 +162,7 @@
         <artifactId>dependency-check-maven</artifactId>
         <version>5.1.1</version>
         <configuration>
-          <formats>HTML,JUNIT</formats>
+          <formats>HTML</formats>
           <failBuildOnCVSS>8</failBuildOnCVSS>
           <suppressionFiles>owasp-dependency-check-supression.xml</suppressionFiles>
         </configuration>

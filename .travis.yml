@@ -1,5 +1,5 @@
 language: java
-if: tag IS present
+if: tag IS present OR NOT (branch == master)
 # before_cache:
 #   - export MAVEN_LOCAL_REPOSITORY=$(mvn -B help:evaluate -Dexpression=settings.localRepository -q -DforceStdout)
 # cache:
@@ -15,7 +15,11 @@ before_deploy:
 deploy:
   provider: releases
   api_key: "${GITHUB_OAUTH_TOKEN}"
-  file: "${BUNDLE_JAR}"
+  file_glob: true
+  file:
+    - "${BUNDLE_JAR}"
+    - "target/site/jacoco/*"
+    - "target/dependency-check-report.html"
   skip_cleanup: true
   on:
     tags: true
