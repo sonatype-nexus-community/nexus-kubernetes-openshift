@@ -170,11 +170,17 @@
         <version>2.7</version>
         <executions>
           <execution>
+            <id>default</id>
+            <goals></goals>
+            <phase>none</phase>
+          </execution>
+          <execution>
             <id>remove-snapshot</id>
             <goals>
               <goal>set</goal>
               <goal>commit</goal>
             </goals>
+            <phase>none</phase>
             <configuration>
               <removeSnapshot>true</removeSnapshot>
             </configuration>
@@ -185,6 +191,7 @@
               <goal>set</goal>
               <goal>commit</goal>
             </goals>
+            <phase>none</phase>
             <configuration>
               <nextSnapshot>true</nextSnapshot>
             </configuration>
@@ -252,9 +259,11 @@
         </configuration>
         <executions>
           <execution>
+            <id>default</id>
             <goals>
               <goal>check</goal>
             </goals>
+            <phase>none</phase>
           </execution>
         </executions>
       </plugin>
