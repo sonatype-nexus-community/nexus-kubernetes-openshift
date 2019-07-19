@@ -68,10 +68,12 @@ The **BUNDLE** jar file will be output in the project's root directory.
 ## Installing
 You can copy the bundle to `/opt/sonatype/nexus/deploy` on any running Nexus container, but it would not be persistent across restarts.
 The simplest option is to build a new container image based on the sonatype/nexus3 container and add the bundle JAR file to the new image.
-Here's an example Dockerfile:
+Here's how to create a container image:
 
-```dockerfile
-FROM sonatype/nexus3:latest
+```bash
+mvn clean package bundle:bundle dockerfile:build
 
-COPY /path/to/bundle/nexus-openshift-plugin-3.17.0-01.jar /opt/sonatype/nexus/deploy
+## Or to use an OpenShift compatible base image
+mvn clean package bundle:bundle dockerfile:build -Dnexus.dockerfile=Dockerfile.rhel7
 ```
+*NOTE: To build the OpenShift image, you MUST have access to `registry.connect.redhat.com` and have Docker configured to authenticate to that registry.*

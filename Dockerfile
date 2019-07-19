@@ -5,6 +5,7 @@ LABEL maintainer="Deven Phillips <deven.phillips@redhat.com>" \
 ARG NEXUS_VERSION=3.17.0-01
 
 USER root
+COPY nexus-openshift-plugin*jar /opt/sonatype/nexus/deploy/nexus-openshift-plugin.jar
 RUN sed -i 's@startLocalConsole=false@startLocalConsole=true@g' /opt/sonatype/nexus/bin/nexus.vmoptions \
     && chown nexus:nexus /opt -R \
     && chown nexus:nexus /nexus-data -R \
