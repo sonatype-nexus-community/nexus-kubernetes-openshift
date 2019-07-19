@@ -19,18 +19,14 @@
  */
 package com.redhat.labs.nexus.openshift
 
-import com.squareup.okhttp.Call
 import com.squareup.okhttp.OkHttpClient
-import com.squareup.okhttp.Response
-import com.squareup.okhttp.ResponseBody
 import io.kubernetes.client.ApiClient
-import io.kubernetes.client.JSON
 import io.kubernetes.client.apis.CoreV1Api
 import io.kubernetes.client.models.V1ConfigMap
 import io.kubernetes.client.models.V1ConfigMapList
 import io.kubernetes.client.models.V1Secret
-import io.kubernetes.client.util.Watch
 import org.sonatype.nexus.blobstore.api.BlobStoreManager
+import org.sonatype.nexus.script.plugin.RepositoryApi
 import org.sonatype.nexus.security.SecuritySystem
 import spock.lang.Specification
 
@@ -47,7 +43,7 @@ class OpenShiftConfigPluginSpec extends Specification {
       def security = Mock(SecuritySystem)
       def blobStoreManager = Mock(BlobStoreManager)
       def repository = Mock(RepositoryApi)
-      def V1Secret secret = Mock(V1Secret)
+      def secret = Mock(V1Secret)
       def underTest = new OpenShiftConfigPlugin()
       underTest.blobStoreManager = blobStoreManager
       underTest.repository = repository

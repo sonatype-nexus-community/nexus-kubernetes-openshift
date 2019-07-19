@@ -32,6 +32,7 @@ import io.kubernetes.client.util.Watch;
 import org.sonatype.goodies.lifecycle.LifecycleSupport;
 import org.sonatype.nexus.blobstore.api.BlobStoreManager;
 import org.sonatype.nexus.common.app.ManagedLifecycle;
+import org.sonatype.nexus.script.plugin.RepositoryApi;
 import org.sonatype.nexus.security.SecuritySystem;
 import org.sonatype.nexus.security.user.UserNotFoundException;
 
@@ -94,7 +95,7 @@ public class OpenShiftConfigPlugin extends LifecycleSupport {
     // If running in OpenShift or K8s, it will automatically detect the correct settings
     // and service account credentials from the /run/secrets/kubernetes.io/serviceaccount
     // directory
-    repositoryConfigWatcher = new RepositoryConfigWatcher(repository, blobStoreManager);
+    repositoryConfigWatcher = new RepositoryConfigWatcher();
     blobStoreConfigWatcher = new BlobStoreConfigWatcher();
     log.info("OpenShift/Kubernetes Plugin starting");
     File namespaceFile = new File(SERVICE_ACCOUNT_NAMESPACE_FILE);
@@ -149,7 +150,13 @@ public class OpenShiftConfigPlugin extends LifecycleSupport {
 
       api.listNamespacedConfigMap(namespace, null, null, null, null, "nexus-type==repository", null, null, null, Boolean.FALSE)
           .getItems()
-          .forEach(configMap -> repositoryConfigWatcher.createNewRepository(repository, configMap));
+          .forEach(configMap -> {
+            try {
+              repositoryConfigWatcher.createNewRepository(repository, configMap);
+            } catch (Exception e) {
+              log.warn("Failed to create repository", e);
+            }
+          });
     } catch (ApiException e) {
       log.error("Error reading ConfigMaps", e);
     }
@@ -178,7 +185,13 @@ public class OpenShiftConfigPlugin extends LifecycleSupport {
   void configureWatchers() {
     try {
       client.getHttpClient().setReadTimeout(0, SECONDS);
-      addWatcher("nexus-type==repository", configMap -> repositoryConfigWatcher.createNewRepository(repository, configMap));
+      addWatcher("nexus-type==repository", configMap -> {
+        try {
+          repositoryConfigWatcher.createNewRepository(repository, configMap);
+        } catch (Exception e) {
+          log.warn("Failed to create repository", e);
+        }
+      });
       addWatcher("nexus-type=blobstore", configMap -> blobStoreConfigWatcher.addBlobStore(configMap, blobStoreManager));
     } catch (ApiException e) {
       log.error("Unable to configure watcher threads for ConfigMaps.", e);
