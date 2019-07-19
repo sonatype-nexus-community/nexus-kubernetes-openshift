@@ -9,8 +9,7 @@ jdk:
   - openjdk8
 before_script:
   - |
-    set
-    if [$TRAVIS_BRANCH == "master" || $TRAVIS_TAG != "true"]; then
+    if [$TRAVIS_BRANCH == "master" || "${TRAVIS_TAG}X" != "X"]; then
       mvn versions:set@remove-snapshot versions:commit@remove-snapshot;
     fi
 script:
@@ -31,7 +30,7 @@ deploy:
     tags: true
 after_success:
   - |
-    if [$TRAVIS_BRANCH == "master" || $TRAVIS_TAG != "true"]; then
+    if [$TRAVIS_BRANCH == "master" || "${TRAVIS_TAG}X" != "X"]; then
       mvn versions:set@rev-to-next-snapshot versions:commit@rev-to-next-snapshot
       git config --global user.name "Travis CI"
       git config --global user.email "travis@travisci.org"
