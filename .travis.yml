@@ -8,39 +8,37 @@ if: tag IS present OR NOT (branch == master)
 jdk:
   - openjdk8
 stages:
-  - name: pre-build
+  - before_script
     if: tag IS present OR NOT (branch == master)
-  - build-and-test
-  - name: github-release
+  - script
+  - before_deploy
     if: tag IS present OR NOT (branch == master)
-  - name: post-success
+  - deploy:
     if: tag IS present OR NOT (branch == master)
-jobs:
-  include:
-    - stage: pre-build
-      script: mvn versions:set@remove-snapshot versions:commit@remove-snapshot
-    - stage: build-and-test
-      script: mvn clean package sonar:sonar dependency-check:check bundle:bundle -Dsonar.login=${SONAR_PROJECT_TOKEN}
-    - stage: github-release
-      script:
-      - export BUNDLE_JAR=$(ls nexus*jar)
-      - echo "deploying $BUNDLE_JAR to GitHub releases"
-      deploy:
-        provider: releases
-        api_key: "${GITHUB_OAUTH_TOKEN}"
-        file_glob: true
-        file:
-          - "${BUNDLE_JAR}"
-          - "target/site/jacoco/*"
-          - "target/dependency-check-report.html"
-        skip_cleanup: true
-        on:
-          tags: true
-    - stage: post-success
-      script:
-      - mvn versions:set@rev-to-next-snapshot versions:commit@rev-to-next-snapshot
-      - git commit pom.xml -m 'Rev to next snapshot'
-      - git config --global user.name "TravisCI"
-      - git config --global user.email "travis@travis-ci.org"
-      - git remote add pushorigin https://${GITHUB_OAUTH_TOKEN}@github.com/InfoSec812/nexus-kubernetes-openshift.git
-      - git push pushorigin master
+  - after_success
+    if: tag IS present OR NOT (branch == master)
+before_script:
+  - mvn versions:set@remove-snapshot versions:commit@remove-snapshot
+script:
+  - mvn clean package sonar:sonar dependency-check:check bundle:bundle -Dsonar.login=${SONAR_PROJECT_TOKEN}
+before_deploy:
+  - export BUNDLE_JAR=$(ls nexus*jar)
+  - echo "deploying $BUNDLE_JAR to GitHub releases"
+deploy:
+  provider: releases
+  api_key: "${GITHUB_OAUTH_TOKEN}"
+  file_glob: true
+  file:
+    - "${BUNDLE_JAR}"
+    - "target/site/jacoco/*"
+    - "target/dependency-check-report.html"
+  skip_cleanup: true
+  on:
+    tags: true
+after_success: # Rev to next SNAPSHOT version, commit pom.xml, and push to master
+  - mvn versions:set@rev-to-next-snapshot versions:commit@rev-to-next-snapshot
+  - git commit pom.xml -m 'Rev to next snapshot'
+  - git config --global user.name "TravisCI"
+  - git config --global user.email "travis@travis-ci.org"
+  - git remote add pushorigin https://${GITHUB_OAUTH_TOKEN}@github.com/InfoSec812/nexus-kubernetes-openshift.git
+  - git push pushorigin master
