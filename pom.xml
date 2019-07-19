@@ -180,6 +180,7 @@
               <goal>set</goal>
               <goal>commit</goal>
             </goals>
+            <phase>none</phase>
             <configuration>
               <removeSnapshot>true</removeSnapshot>
             </configuration>
@@ -190,6 +191,7 @@
               <goal>set</goal>
               <goal>commit</goal>
             </goals>
+            <phase>none</phase>
             <configuration>
               <nextSnapshot>true</nextSnapshot>
             </configuration>
