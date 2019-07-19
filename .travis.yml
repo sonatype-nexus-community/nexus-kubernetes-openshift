@@ -14,10 +14,14 @@ before_script:
       mvn -q versions:set@remove-snapshot versions:commit@remove-snapshot -B;
     fi
 script:
-  - mvn clean package -B
-  - mvn sonar:sonar -Dsonar.login=${SONAR_PROJECT_TOKEN} -B
-  - mvn -q dependency-check:check -B
-  - mvn -q bundle:bundle -B
+  - |
+    mvn clean package -B
+    if [ "$TRAVIS_BRANCH" = "master" ] || [ "${TRAVIS_TAG}X" != "X" ]; then
+      ## Only run these commands when building a release
+      mvn sonar:sonar -Dsonar.login=${SONAR_PROJECT_TOKEN} -B
+      mvn -q dependency-check:check -B
+      mvn -q bundle:bundle -B
+    fi
 before_deploy:
   - export BUNDLE_JAR=$(ls nexus*jar)
   - echo "deploying $BUNDLE_JAR to GitHub releases"
@@ -38,6 +42,22 @@ after_success:
       mvn -q versions:set@rev-to-next-snapshot versions:commit@rev-to-next-snapshot -B
       git config --global user.name "Travis CI"
       git config --global user.email "travis@travisci.org"
+      git checkout -b version-branch
+      git commit pom.xml -m 'Bumped micro version'
+      git checkout ${TRAVIS_BRANCH}
+      git merge version-branch -Xtheirs
       git remote add pushorigin https://${GITHUB_OAUTH_TOKEN}@github.com/InfoSec812/nexus-kubernetes-openshift.git
-      git push pushorigin master
+      git push pushorigin ${TRAVIS_BRANCH}
+    fi
+    if [ "$TRAVIS_BRANCH" = "Fix-after-success-stage" ] || [ "${TRAVIS_TAG}X" != "X" ]; then
+      mvn -q versions:set@rev-to-next-snapshot versions:commit@rev-to-next-snapshot -B
+      git config --global user.name "Travis CI"
+      git config --global user.email "travis@travisci.org"
+      git fetch --all
+      git checkout -b version-branch
+      git commit pom.xml -m 'Bumped micro version'
+      git checkout ${TRAVIS_BRANCH}
+      git merge version-branch -Xtheirs
+      git remote add pushorigin https://${GITHUB_OAUTH_TOKEN}@github.com/InfoSec812/nexus-kubernetes-openshift.git
+      git push pushorigin Fix-after-success-stage
     fi
