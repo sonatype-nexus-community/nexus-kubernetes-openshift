@@ -170,6 +170,11 @@
         <version>2.7</version>
         <executions>
           <execution>
+            <id>default</id>
+            <goals></goals>
+            <phase>none</phase>
+          </execution>
+          <execution>
             <id>remove-snapshot</id>
             <goals>
               <goal>set</goal>
@@ -255,6 +260,7 @@
             <goals>
               <goal>check</goal>
             </goals>
+            <phase>none</phase>
           </execution>
         </executions>
       </plugin>
