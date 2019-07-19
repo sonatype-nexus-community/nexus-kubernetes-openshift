@@ -45,9 +45,9 @@ after_success:
       git checkout -b version-branch
       git commit pom.xml -m 'Bumped micro version'
       git checkout ${TRAVIS_BRANCH}
-      git merge version-branch -s theirs
+      git merge version-branch -Xtheirs
       git remote add pushorigin https://${GITHUB_OAUTH_TOKEN}@github.com/InfoSec812/nexus-kubernetes-openshift.git
-      git push pushorigin master
+      git push pushorigin ${TRAVIS_BRANCH}
     fi
     if [ "$TRAVIS_BRANCH" = "Fix-after-success-stage" ] || [ "${TRAVIS_TAG}X" != "X" ]; then
       mvn -q versions:set@rev-to-next-snapshot versions:commit@rev-to-next-snapshot -B
@@ -57,7 +57,7 @@ after_success:
       git checkout -b version-branch
       git commit pom.xml -m 'Bumped micro version'
       git checkout ${TRAVIS_BRANCH}
-      git merge version-branch -s theirs
+      git merge version-branch -Xtheirs
       git remote add pushorigin https://${GITHUB_OAUTH_TOKEN}@github.com/InfoSec812/nexus-kubernetes-openshift.git
       git push pushorigin Fix-after-success-stage
     fi
