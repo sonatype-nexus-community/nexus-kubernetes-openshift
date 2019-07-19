@@ -5,6 +5,7 @@ if: tag IS present OR NOT (branch == master)
 # cache:
 #   directories:
 #     - $MAVEN_LOCAL_REPOSITORY
+install: mvn dependency:resolve
 jdk:
   - openjdk8
 before_script:
