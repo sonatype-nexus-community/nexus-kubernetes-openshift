@@ -15,9 +15,12 @@ before_script:
     fi
 script:
   - mvn clean package -B
-  - mvn sonar:sonar -Dsonar.login=${SONAR_PROJECT_TOKEN} -B
-  - mvn -q dependency-check:check -B
-  - mvn -q bundle:bundle -B
+  - |
+    if [ "$TRAVIS_BRANCH" = "master" ] || [ "${TRAVIS_TAG}X" != "X" ]; then
+      mvn sonar:sonar -Dsonar.login=${SONAR_PROJECT_TOKEN} -B
+      mvn -q dependency-check:check -B
+      mvn -q bundle:bundle -B
+    fi
 before_deploy:
   - export BUNDLE_JAR=$(ls nexus*jar)
   - echo "deploying $BUNDLE_JAR to GitHub releases"
