@@ -7,6 +7,8 @@ if: tag IS present OR NOT (branch == master)
 #     - $MAVEN_LOCAL_REPOSITORY
 jdk:
   - openjdk8
+before_script:
+  - mvn versions:set@remove-snapshot versions:commit@remove-snapshot
 script:
   - mvn clean package sonar:sonar dependency-check:check bundle:bundle -Dsonar.login=${SONAR_PROJECT_TOKEN}
 before_deploy:
@@ -23,3 +25,10 @@ deploy:
   skip_cleanup: true
   on:
     tags: true
+after_success: # Rev to next SNAPSHOT version, commit pom.xml, and push to master
+  - mvn versions:set@rev-to-next-snapshot versions:commit@rev-to-next-snapshot
+  - git commit pom.xml -m 'Rev to next snapshot'
+  - git config --global user.name "TravisCI"
+  - git config --global user.email "travis@travis-ci.org"
+  - git remote add pushorigin https://${GITHUB_OAUTH_TOKEN}@github.com/InfoSec812/nexus-kubernetes-openshift.git
+  - git push pushorigin master

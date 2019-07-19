@@ -165,6 +165,33 @@
   <build>
     <plugins>
       <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>versions-maven-plugin</artifactId>
+        <version>2.7</version>
+        <executions>
+          <execution>
+            <id>remove-snapshot</id>
+            <goals>
+              <goal>set</goal>
+              <goal>commit</goal>
+            </goals>
+            <configuration>
+              <removeSnapshot>true</removeSnapshot>
+            </configuration>
+          </execution>
+          <execution>
+            <id>rev-to-next-snapshot</id>
+            <goals>
+              <goal>set</goal>
+              <goal>commit</goal>
+            </goals>
+            <configuration>
+              <nextSnapshot>true</nextSnapshot>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-clean-plugin</artifactId>
         <version>3.1.0</version>
