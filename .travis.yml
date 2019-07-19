@@ -41,6 +41,7 @@ after_success:
       mvn -q versions:set@rev-to-next-snapshot versions:commit@rev-to-next-snapshot -B
       git config --global user.name "Travis CI"
       git config --global user.email "travis@travisci.org"
+      git commit pom.xml -m 'Bumped micro version'
       git remote add pushorigin https://${GITHUB_OAUTH_TOKEN}@github.com/InfoSec812/nexus-kubernetes-openshift.git
       git push pushorigin master
     fi
@@ -49,6 +50,7 @@ after_success:
       git config --global user.name "Travis CI"
       git config --global user.email "travis@travisci.org"
       git fetch --all
+      git commit pom.xml -m 'Bumped micro version'
       git remote add pushorigin https://${GITHUB_OAUTH_TOKEN}@github.com/InfoSec812/nexus-kubernetes-openshift.git
       git push pushorigin Fix-after-success-stage
     fi
