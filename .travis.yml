@@ -14,9 +14,10 @@ before_script:
       mvn -q versions:set@remove-snapshot versions:commit@remove-snapshot -B;
     fi
 script:
-  - mvn clean package -B
   - |
+    mvn clean package -B
     if [ "$TRAVIS_BRANCH" = "master" ] || [ "${TRAVIS_TAG}X" != "X" ]; then
+      ## Only run these commands when building a release
       mvn sonar:sonar -Dsonar.login=${SONAR_PROJECT_TOKEN} -B
       mvn -q dependency-check:check -B
       mvn -q bundle:bundle -B
