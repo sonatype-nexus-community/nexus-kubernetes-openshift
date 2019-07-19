@@ -171,16 +171,10 @@
         <configuration>
           <filesets>
             <fileset>
-              <directory>target</directory>
-            </fileset>
-            <fileset>
-              <directory>${project.basedir}</directory>
+              <directory>${basedir}</directory>
               <includes>
                 <include>nexus-openshift-plugin*.jar</include>
               </includes>
-              <excludes>
-                <exclude>**/*</exclude>
-              </excludes>
             </fileset>
           </filesets>
         </configuration>

@@ -1,7 +1,9 @@
 FROM sonatype/nexus3:latest
 LABEL maintainer="Deven Phillips <deven.phillips@redhat.com>" \
       vendor="Red Hat" \
-      description="Sonatype Nexus repository manager with OpenShift Config plugin"
+      description="Sonatype Nexus repository manager with Kubernetes/OpenShift Config plugin" \
+      source="https://github.com/InfoSec812/nexus-kubernetes-openshift" \
+      documentation="https://github.com/InfoSec812/nexus-kubernetes-openshift/blob/master/README.md"
 ARG NEXUS_VERSION=3.17.0-01
 
 USER root
