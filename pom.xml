@@ -259,6 +259,7 @@
         </configuration>
         <executions>
           <execution>
+            <id>default</id>
             <goals>
               <goal>check</goal>
             </goals>
