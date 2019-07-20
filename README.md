@@ -79,6 +79,20 @@ mvn clean package bundle:bundle dockerfile:build -Dnexus.dockerfile=Dockerfile.r
 *NOTE: To build the OpenShift image, you MUST have access to `registry.connect.redhat.com` and have Docker configured to authenticate to that registry.*
 
 ## Provisioning BlobStores
+Right now, this ONLY supports File blobstores. Perhaps later, S3 blobstores can be supported.
+
+### Example ConfigMap
+```yaml
+apiVersion: v1
+data:
+  type: 'File'
+kind: ConfigMap
+metadata:
+  name: my-blobstore
+  namespace: labs-ci-cd
+  labels:
+    nexus-type: blobstore
+```
 
 ## Provisioning Repositories
 Nexus supports a number of different repository types, and each one has different required settings. 
