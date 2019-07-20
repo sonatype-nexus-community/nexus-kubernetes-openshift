@@ -87,6 +87,7 @@ Nexus supports a number of different repository types, and each one has differen
 ```yaml
 apiVersion: v1
 data:
+  recipe: 'MavenProxy'
   remoteUrl: 'https://repo.maven.apache.org/maven2/'
   blobStoreName: 'default'
   strictContentTypeValidation: 'true'
