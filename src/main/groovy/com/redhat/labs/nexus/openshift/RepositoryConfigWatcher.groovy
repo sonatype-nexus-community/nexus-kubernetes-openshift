@@ -35,136 +35,182 @@ class RepositoryConfigWatcher {
 
   private final Map<String, Object> VALID_RECIPES = [
           'AptHosted'     : [
-                  'description': 'String', 'pgpPrivateKey': 'String', 'pgpPassPhrase': 'String', 'blobStoreName': 'String', 'writePolicy': 'WritePolicy', 'strictContentTypeValidation': 'boolean',
-                  defaults: [strictContentTypeValidation: true, writePolicy: WritePolicy.ALLOW, blobStoreName: BlobStoreManager.DEFAULT_BLOBSTORE_NAME]
+                  description                : [type: 'String', required: false],
+                  pgpPrivateKey              : [type: 'String', required: false],
+                  pgpPassPhrase              : [type: 'String', required: false],
+                  blobStoreName              : [type: 'String', required: true, default: BlobStoreManager.DEFAULT_BLOBSTORE_NAME],
+                  writePolicy                : [type: 'WritePolicy', required: true, default: WritePolicy.ALLOW],
+                  strictContentTypeValidation: [type: 'boolean', required: true, default: Boolean.TRUE]
           ],
           'AptProxy'      : [
-                  'remoteUrl': 'String', 'blobStoreName': 'String', 'distribution': 'String', 'strictContentTypeValidation': 'boolean',
-                  defaults: [strictContentTypeValidation: true]
+                  remoteUrl                  : [type: 'String', required: true],
+                  blobStoreName              : [type: 'String', required: true, default: BlobStoreManager.DEFAULT_BLOBSTORE_NAME],
+                  distribution               : [type: 'String', required: false],
+                  strictContentTypeValidation: [type: 'boolean', required: true, default: true]
           ],
           'BowerGroup'    : [
-                  'members': 'List<String>', 'blobStoreName': 'String',
-                  defaults: [blobStoreName: BlobStoreManager.DEFAULT_BLOBSTORE_NAME]
+                  members                    : [type: 'List<String>', required: false],
+                  blobStoreName              : [type: 'String', required: true, default: BlobStoreManager.DEFAULT_BLOBSTORE_NAME]
           ],
           'BowerHosted'   : [
-                  'blobStoreName': 'String', 'strictContentTypeValidation': 'boolean', 'writePolicy': 'WritePolicy',
-                  defaults: [blobStoreName: BlobStoreManager.DEFAULT_BLOBSTORE_NAME, strictContentTypeValidation: true, writePolicy: WritePolicy.ALLOW]
+                  blobStoreName              : [type: 'String', required: true, default: BlobStoreManager.DEFAULT_BLOBSTORE_NAME],
+                  strictContentTypeValidation: [type: 'boolean', required: true, default: true],
+                  writePolicy                : [type: 'WritePolicy', required: true, default: WritePolicy.ALLOW]
           ],
           'BowerProxy'    : [
-                  'remoteUrl': 'String', 'blobStoreName': 'String', 'strictContentTypeValidation': 'boolean', 'rewritePackageUrls': 'boolean',
-                  defaults: [blobStoreName: BlobStoreManager.DEFAULT_BLOBSTORE_NAME, strictContentTypeValidation: true, rewritePackageUrls: true]
+                  remoteUrl                  : [type: 'String', required: true],
+                  blobStoreName              : [type: 'String', required: true, default: BlobStoreManager.DEFAULT_BLOBSTORE_NAME],
+                  strictContentTypeValidation: [type: 'boolean', required: true, default: true],
+                  rewritePackageUrls         : [type: 'boolean', required: true, default: true]
           ],
           'DockerGroup'   : [
-                  'httpPort': 'Integer', 'httpsPort': 'Integer', 'members': 'List<String>', 'v1Enabled': 'boolean', 'blobStoreName': 'String', 'forceBasicAuth': 'boolean',
-                  defaults: [v1Enabled: true, blobStoreName: BlobStoreManager.DEFAULT_BLOBSTORE_NAME, forceBasicAuth: true]
+                  httpPort                    : [type: 'Integer', required: false],
+                  httpsPort                   : [type: 'Integer', required: false],
+                  members                     : [type: 'List<String>', required: false],
+                  v1Enabled                   : [type: 'boolean', required: true, default: true],
+                  blobStoreName               : [type: 'String', required: true, default: BlobStoreManager.DEFAULT_BLOBSTORE_NAME],
+                  forceBasicAuth              : [type: 'boolean', required: true, default: true]
           ],
           'DockerHosted'  : [
-                  'httpPort': 'Integer', 'httpsPort': 'Integer', 'blobStoreName': 'String', 'strictContentTypeValidation': 'boolean', 'v1Enabled': 'boolean', 'writePolicy': 'WritePolicy', 'forceBasicAuth': 'boolean',
-                  defaults: [blobStoreName: BlobStoreManager.DEFAULT_BLOBSTORE_NAME, strictContentTypeValidation: true, v1Enabled: true, writePolicy: WritePolicy.ALLOW, forceBasicAuth: true]
+                  httpPort                   : [type: 'Integer', required: false],
+                  httpsPort                  : [type: 'Integer', required: false],
+                  blobStoreName              : [type: 'String', required: true, default: BlobStoreManager.DEFAULT_BLOBSTORE_NAME],
+                  strictContentTypeValidation: [type: 'boolean', required: true, default: true],
+                  v1Enabled                  : [type: 'boolean', required: true, default: true],
+                  writePolicy                : [type: 'WritePolicy', required: true, default: WritePolicy.ALLOW],
+                  forceBasicAuth             : [type: 'boolean', required: true, default: true]
           ],
           'DockerProxy'   : [
-                  'remoteUrl': 'String', 'indexType': 'String', 'indexUrl': 'String', 'httpsPort': 'Integer', 'blobStoreName': 'String', 'strictContentTypeValidation': 'boolean', 'v1Enabled': 'boolean', 'forceBasicAuth': 'boolean',
-                  defaults: [blobStoreName: BlobStoreManager.DEFAULT_BLOBSTORE_NAME, strictContentTypeValidation: true, v1Enabled: true, forceBasicAuth: true]
+                  remoteUrl                  : [type: 'String', required: true],
+                  indexType                  : [type: 'String', required: true, default: 'REGISTRY'],
+                  indexUrl                   : [type: 'String', required: false],
+                  httpPort                   : [type: 'Integer', required: false],
+                  httpsPort                  : [type: 'Integer', required: false],
+                  blobStoreName              : [type: 'String', required: true, default: BlobStoreManager.DEFAULT_BLOBSTORE_NAME],
+                  strictContentTypeValidation: [type: 'boolean', required: true, default: true],
+                  v1Enabled                  : [type: 'boolean', required: true, default: true]
           ],
           'GitLfsHosted'  : [
-                  'blobStoreName': 'String', 'strictContentTypeValidation': 'boolean', 'writePolicy': 'WritePolicy',
-                  defaults: [blobStoreName: BlobStoreManager.DEFAULT_BLOBSTORE_NAME, strictContentTypeValidation: true, writePolicy: WritePolicy.ALLOW]
+                  blobStoreName              : [type: 'String'],
+                  strictContentTypeValidation: [type: 'boolean', required: true, default: true],
+                  writePolicy                : [type: 'WritePolicy', required: true, default: WritePolicy.ALLOW]
           ],
           'GolangGroup'   : [
-                  'members': 'List<String>', blobStoreName: 'String',
-                  defaults: [blobStoreName: BlobStoreManager.DEFAULT_BLOBSTORE_NAME]
+                  members                    : [type: 'List<String>', required: false],
+                  blobStoreName              : [type: 'String', required: true, default: BlobStoreManager.DEFAULT_BLOBSTORE_NAME]
           ],
           'GolangHosted'  : [
-                  blobStoreName: 'String', strictContentTypeValidation: 'boolean', writePolicy: 'WritePolicy',
-                  defaults: [blobStoreName: BlobStoreManager.DEFAULT_BLOBSTORE_NAME, strictContentTypeValidation: true, writePolicy: WritePolicy.ALLOW]
+                  blobStoreName              : [type: 'String', required: true, default: BlobStoreManager.DEFAULT_BLOBSTORE_NAME],
+                  strictContentTypeValidation: [type: 'boolean', required: true, default: true],
+                  writePolicy                : [type: 'WritePolicy', required: true, default: WritePolicy.ALLOW]
           ],
           'GolangProxy'   : [
-                  remoteUrl: 'String', blobStoreName: 'String', strictContentTypeValidation: 'boolean',
-                  defaults: [blobStoreName: BlobStoreManager.DEFAULT_BLOBSTORE_NAME, strictContentTypeValidation: true]
+                  remoteUrl                  : [type: 'String', required: true],
+                  blobStoreName              : [type: 'String', required: true, default: BlobStoreManager.DEFAULT_BLOBSTORE_NAME],
+                  strictContentTypeValidation: [type: 'boolean', required: true, default: true]
           ],
           'MavenGroup'    : [
-                  members: 'List<String>', blobStoreName: 'String',
-                  defaults: [blobStoreName: BlobStoreManager.DEFAULT_BLOBSTORE_NAME]
+                  members                    : [type: 'List<String>', required: false],
+                  blobStoreName              : [type: 'String', required: true, default: BlobStoreManager.DEFAULT_BLOBSTORE_NAME]
           ],
           'MavenHosted'   : [
-                  blobStoreName: 'String', strictContentTypeValidation: 'boolean', versionPolicy: 'VersionPolicy', writePolicy: 'WritePolicy', layoutPolicy: 'LayoutPolicy',
-                  defaults: [blobStoreName: BlobStoreManager.DEFAULT_BLOBSTORE_NAME, strictContentTypeValidation: true, versionPolicy: VersionPolicy.RELEASE, writePolicy: WritePolicy.ALLOW_ONCE, layoutPolicy: LayoutPolicy.STRICT]
+                  blobStoreName              : [type: 'String', required: true, default: BlobStoreManager.DEFAULT_BLOBSTORE_NAME],
+                  strictContentTypeValidation: [type: 'boolean', required: true, default: true],
+                  versionPolicy              : [type: 'VersionPolicy', required: true, default: VersionPolicy.RELEASE],
+                  writePolicy                : [type: 'WritePolicy', required: true, default: WritePolicy.ALLOW_ONCE],
+                  layoutPolicy               : [type: 'LayoutPolicy', required: true, default: LayoutPolicy.STRICT]
           ],
           'MavenProxy'    : [
-                  remoteUrl: 'String', blobStoreName: 'String', strictContentTypeValidation: 'boolean', versionPolicy: 'VersionPolicy', layoutPolicy: 'LayoutPolicy',
-                  defaults: [blobStoreName: BlobStoreManager.DEFAULT_BLOBSTORE_NAME, strictContentTypeValidation: true, versionPolicy: VersionPolicy.RELEASE, layoutPolicy: LayoutPolicy.STRICT]
+                  remoteUrl                  : [type: 'String', required: true],
+                  blobStoreName              : [type: 'String', required: true, default: BlobStoreManager.DEFAULT_BLOBSTORE_NAME],
+                  strictContentTypeValidation: [type: 'boolean', required: true, default: true],
+                  versionPolicy              : [type: 'VersionPolicy', required: true, default: VersionPolicy.RELEASE],
+                  layoutPolicy               : [type: 'LayoutPolicy', required: true, default: LayoutPolicy.STRICT]
           ],
           'NpmGroup'      : [
-                  members: 'List<String>', blobStoreName: 'String',
-                  defaults: [blobStoreName: BlobStoreManager.DEFAULT_BLOBSTORE_NAME]
+                  members                    : [type: 'List<String>', required: false],
+                  blobStoreName              : [type: 'String', required: true, default: BlobStoreManager.DEFAULT_BLOBSTORE_NAME]
           ],
           'NpmHosted'     : [
-                  blobStoreName: 'String', strictContentTypeValidation: 'boolean', writePolicy: 'WritePolicy',
-                  defaults: [blobStoreName: BlobStoreManager.DEFAULT_BLOBSTORE_NAME, strictContentTypeValidation: true, writePolicy: WritePolicy.ALLOW]
+                  blobStoreName              : [type: 'String', required: true, default: BlobStoreManager.DEFAULT_BLOBSTORE_NAME],
+                  strictContentTypeValidation: [type: 'boolean', required: true, default: true],
+                  writePolicy                : [type: 'WritePolicy', required: true, default: WritePolicy.ALLOW]
           ],
           'NpmProxy'      : [
-                  remoteUrl: 'String', blobStoreName: 'String', strictContentTypeValidation: 'boolean',
-                  defaults: [blobStoreName: BlobStoreManager.DEFAULT_BLOBSTORE_NAME, strictContentTypeValidation: true]
+                  remoteUrl                  : [type: 'String', required: true],
+                  blobStoreName              : [type: 'String', required: true, default: BlobStoreManager.DEFAULT_BLOBSTORE_NAME],
+                  strictContentTypeValidation: [type: 'boolean', required: true, default: true]
           ],
           'NugetGroup'    : [
-                  members: 'List<String>', blobStoreName: 'String',
-                  defaults: [blobStoreName: BlobStoreManager.DEFAULT_BLOBSTORE_NAME]
+                  members      : [type: 'List<String>', required: false],
+                  blobStoreName: [type: 'String', required: true, default: BlobStoreManager.DEFAULT_BLOBSTORE_NAME]
           ],
           'NugetHosted'   : [
-                  blobStoreName: 'String', strictContentTypeValidation: 'boolean', writePolicy: 'WritePolicy',
-                  defaults: [blobStoreName: BlobStoreManager.DEFAULT_BLOBSTORE_NAME, strictContentTypeValidation: true, writePolicy: WritePolicy.ALLOW]
+                  blobStoreName              : [type: 'String', required: true, default: BlobStoreManager.DEFAULT_BLOBSTORE_NAME],
+                  strictContentTypeValidation: [type: 'boolean', required: true, default: true],
+                  writePolicy                : [type: 'WritePolicy', required: true, default: WritePolicy.ALLOW]
           ],
           'NugetProxy'    : [
-                  remoteUrl: 'String', blobStoreName: 'String', strictContentTypeValidation: 'boolean',
-                  defaults: [blobStoreName: BlobStoreManager.DEFAULT_BLOBSTORE_NAME, strictContentTypeValidation: true]
+                  remoteUrl                  : [type: 'String', required: true],
+                  blobStoreName              : [type: 'String', required: true, default: BlobStoreManager.DEFAULT_BLOBSTORE_NAME],
+                  strictContentTypeValidation: [type: 'boolean', required: true, default: true]
           ],
           'PyPiGroup'     : [
-                  members: 'List<String>', blobStoreName: 'String',
-                  defaults: [blobStoreName: BlobStoreManager.DEFAULT_BLOBSTORE_NAME]
+                  members                     : [type: 'List<String>', required: false],
+                  blobStoreName               : [type: 'String', required: true, default: BlobStoreManager.DEFAULT_BLOBSTORE_NAME]
           ],
           'PyPiHosted'    : [
-                  blobStoreName: 'String', strictContentTypeValidation: 'boolean', writePolicy: 'WritePolicy',
-                  defaults: [blobStoreName: BlobStoreManager.DEFAULT_BLOBSTORE_NAME, strictContentTypeValidation: true, writePolicy: WritePolicy.ALLOW]
+                  blobStoreName              : [type: 'String', required: true, default: BlobStoreManager.DEFAULT_BLOBSTORE_NAME],
+                  strictContentTypeValidation: [type: 'boolean', required: true, default: true],
+                  writePolicy                : [type: 'WritePolicy', required: true, default: WritePolicy.ALLOW]
           ],
           'PyPiProxy'     : [
-                  remoteUrl: 'String', blobStoreName: 'String', strictContentTypeValidation: 'boolean',
-                  defaults: [blobStoreName: BlobStoreManager.DEFAULT_BLOBSTORE_NAME, strictContentTypeValidation: true]
+                  remoteUrl                  : [type: 'String', required: true],
+                  blobStoreName              : [type: 'String', required: true, default: BlobStoreManager.DEFAULT_BLOBSTORE_NAME],
+                  strictContentTypeValidation: [type: 'boolean', required: true, default: true]
           ],
           'RawGroup'      : [
-                  members: 'List<String>', blobStoreName: 'String',
-                  defaults: [blobStoreName: BlobStoreManager.DEFAULT_BLOBSTORE_NAME]
+                  members                     : [type: 'List<String>', required: false],
+                  blobStoreName               : [type: 'String', required: true, default: BlobStoreManager.DEFAULT_BLOBSTORE_NAME]
           ],
           'RawHosted'     : [
-                  blobStoreName: 'String', strictContentTypeValidation: 'boolean', writePolicy: 'WritePolicy',
-                  defaults: [blobStoreName: BlobStoreManager.DEFAULT_BLOBSTORE_NAME, strictContentTypeValidation: true, writePolicy: WritePolicy.ALLOW]
+                  blobStoreName              : [type: 'String', required: true, default: BlobStoreManager.DEFAULT_BLOBSTORE_NAME],
+                  strictContentTypeValidation: [type: 'boolean', required: true, default: true],
+                  writePolicy                : [type: 'WritePolicy', required: true, default: WritePolicy.ALLOW]
           ],
           'RawProxy'      : [
-                  remoteUrl: 'String', blobStoreName: 'String', strictContentTypeValidation: 'boolean',
-                  defaults: [blobStoreName: BlobStoreManager.DEFAULT_BLOBSTORE_NAME, strictContentTypeValidation: true]
+                  remoteUrl                  : [type: 'String', required: true],
+                  blobStoreName              : [type: 'String', required: true, default: BlobStoreManager.DEFAULT_BLOBSTORE_NAME],
+                  strictContentTypeValidation: [type: 'boolean', required: true, default: true]
           ],
           'RubygemsGroup' : [
-                  members: 'List<String>', blobStoreName: 'String',
-                  defaults: [blobStoreName: BlobStoreManager.DEFAULT_BLOBSTORE_NAME]
+                  members                    : [type: 'List<String>', required: false],
+                  blobStoreName              : [type: 'String', required: true, default: BlobStoreManager.DEFAULT_BLOBSTORE_NAME]
           ],
           'RubygemsHosted': [
-                  blobStoreName: 'String', strictContentTypeValidation: 'boolean', writePolicy: 'WritePolicy',
-                  defaults: [blobStoreName: BlobStoreManager.DEFAULT_BLOBSTORE_NAME, strictContentTypeValidation: true, writePolicy: WritePolicy.ALLOW]
+                  blobStoreName              : [type: 'String', required: true, default: BlobStoreManager.DEFAULT_BLOBSTORE_NAME],
+                  strictContentTypeValidation: [type: 'boolean', required: true, default: true],
+                  writePolicy                : [type: 'WritePolicy', required: true, default: WritePolicy.ALLOW]
           ],
           'RubygemsProxy' : [
-                  remoteUrl: 'String', blobStoreName: 'String', strictContentTypeValidation: 'boolean',
-                  defaults: [blobStoreName: BlobStoreManager.DEFAULT_BLOBSTORE_NAME, strictContentTypeValidation: true]
+                  remoteUrl                  : [type: 'String', required: true],
+                  blobStoreName              : [type: 'String', required: true, default: BlobStoreManager.DEFAULT_BLOBSTORE_NAME],
+                  strictContentTypeValidation: [type: 'boolean', required: true, default: true]
           ],
           'YumGroup'      : [
-                  members: 'List<String>', blobStoreName: 'String',
-                  defaults: [blobStoreName: BlobStoreManager.DEFAULT_BLOBSTORE_NAME]
+                  members                    : [type: 'List<String>', required: false],
+                  blobStoreName              : [type: 'String', required: true, default: BlobStoreManager.DEFAULT_BLOBSTORE_NAME]
           ],
           'YumHosted'     : [
-                  blobStoreName: 'String', strictContentTypeValidation: 'boolean', writePolicy: 'WritePolicy', depth: 'Integer',
-                  defaults: [blobStoreName: BlobStoreManager.DEFAULT_BLOBSTORE_NAME, strictContentTypeValidation: true, writePolicy: WritePolicy.ALLOW, depth: 0]
+                  blobStoreName              : [type: 'String', required: true, default: BlobStoreManager.DEFAULT_BLOBSTORE_NAME],
+                  strictContentTypeValidation: [type: 'boolean', required: true, default: true],
+                  writePolicy                : [type: 'WritePolicy', required: true, default: WritePolicy.ALLOW],
+                  depth                      : [type: 'Integer', required: true, default: 0]
           ],
           'YumProxy'      : [
-                  remoteUrl: 'String', blobStoreName: 'String', strictContentTypeValidation: 'boolean',
-                  defaults: [blobStoreName: BlobStoreManager.DEFAULT_BLOBSTORE_NAME, strictContentTypeValidation: true]
+                  remoteUrl                  : [type: 'String', required: true],
+                  blobStoreName              : [type: 'String', required: true, default: BlobStoreManager.DEFAULT_BLOBSTORE_NAME],
+                  strictContentTypeValidation: [type: 'boolean', required: true, default: true]
           ]
   ]
 
@@ -175,60 +221,82 @@ class RepositoryConfigWatcher {
       if (VALID_RECIPES.get(recipe) != null) {
         Map<String, Object> fields = VALID_RECIPES[recipe] as Map<String, Object>
         def parameters = [repositoryName] as List<Object>
-        for (String key : fields.keySet()) {
-          if (key != 'defaults' && key != 'recipe') {
-            String type = VALID_RECIPES[recipe][key]
+        for (Map.Entry<String, Object> item : fields.entrySet()) {
+          Map field = item.value
+          String key = item.key
+          if (key != 'indexUrl' && key != 'recipe') {
+            String type = field.type
             switch (type) {
               case 'String':
-                def value = configMap.data.getOrDefault(key, (String) VALID_RECIPES[recipe]?.defaults?."${key}")
+                // indexType                  : [type: 'String', required: true, default: 'REGISTRY'],    // TODO: This will require special logic : REGISTRY, HUB, CUSTOM
+                // indexUrl                   : [type: 'String', required: false],
+                def value = configMap.data.getOrDefault(key, (String)field.default)
                 parameters.add(value)
-                if (value == null) {
+
+                // This handles a special case for DockerProxy recipe
+                if (recipe == 'DockerProxy' && key == 'indexType' && value != 'REGISTRY') {
+                  def indexUrlValue = configMap.data.getOrDefault('indexUrl', 'https://index.docker.io/')
+                  parameters.add(indexUrlValue)
+                }
+                if (value == null && field.required) {
                   throw new Exception("Required parameter '${key}' for recipe '${recipe}' is null. Refusing to provision repository")
+                } else if (!field.required) {
+                  parameters.add(null)
                 }
                 break
               case 'List<String>':
-                def value = Arrays.asList(configMap.data.getOrDefault(key, (String) VALID_RECIPES[recipe]?.defaults?."${key}").split(','))
+                def value = Arrays.asList(configMap.data.getOrDefault(key, (String)field.default).split(','))
                 parameters.add(value)
-                if (value == null) {
+                if (value == null && field.required) {
                   throw new Exception("Required parameter '${key}' for recipe '${recipe}' is null. Refusing to provision repository")
+                } else if (!field.required) {
+                  parameters.add(null)
                 }
                 break
               case 'Integer':
-                def value = configMap.data.getOrDefault(key, (String) VALID_RECIPES[recipe]?.defaults?."${key}")
-                if (value == null && !key.startsWith('http')) {
+                def value = configMap.data.getOrDefault(key, (String) field.default)
+                if (value == null && !key.startsWith('http') && field.required) {
                   throw new Exception("Required parameter '${key}' for recipe '${recipe}' is null. Refusing to provision repository")
                 } else if (value != null) {
                   parameters.add(new Integer(Integer.parseInt(value)))
-                } else if (key.startsWith('http')) {
+                } else if (!field.required) {
                   parameters.add(null)
                 }
                 break
               case 'boolean':
-                def value = configMap.data.getOrDefault(key, (String) VALID_RECIPES[recipe]?.defaults?."${key}").toLowerCase().contentEquals("true")
+                def value = configMap.data.getOrDefault(key, (String) field.default).toLowerCase().contentEquals("true")
                 parameters.add(value)
-                if (value == null) {
+                if (value == null && field.required) {
                   throw new Exception("Required parameter '${key}' for recipe '${recipe}' is null. Refusing to provision repository")
+                } else if (!field.required) {
+                  parameters.add(null)
                 }
                 break
               case 'WritePolicy':
-                def value = WritePolicy.valueOf(configMap.data.getOrDefault(key, (String) VALID_RECIPES[recipe]?.defaults?."${key}").toUpperCase())
+                def value = WritePolicy.valueOf(configMap.data.getOrDefault(key, (String) field.default).toUpperCase())
                 parameters.add(value)
-                if (value == null) {
+                if (value == null && field.required) {
                   throw new Exception("Required parameter '${key}' for recipe '${recipe}' is null. Refusing to provision repository")
+                } else if (!field.required) {
+                  parameters.add(null)
                 }
                 break
               case 'VersionPolicy':
-                def value = VersionPolicy.valueOf(configMap.data.getOrDefault(key, (String) VALID_RECIPES[recipe]?.defaults?."${key}").toUpperCase())
+                def value = VersionPolicy.valueOf(configMap.data.getOrDefault(key, (String) field.default).toUpperCase())
                 parameters.add(value)
-                if (value == null) {
+                if (value == null && field.required) {
                   throw new Exception("Required parameter '${key}' for recipe '${recipe}' is null. Refusing to provision repository")
+                } else if (!field.required) {
+                  parameters.add(null)
                 }
                 break
               case 'LayoutPolicy':
-                def value = LayoutPolicy.valueOf(configMap.data.getOrDefault(key, (String) VALID_RECIPES[recipe]?.defaults?."${key}").toUpperCase())
+                def value = LayoutPolicy.valueOf(configMap.data.getOrDefault(key, (String) field.default).toUpperCase())
                 parameters.add(value)
-                if (value == null) {
+                if (value == null && field.required) {
                   throw new Exception("Required parameter '${key}' for recipe '${recipe}' is null. Refusing to provision repository")
+                } else if (!field.required) {
+                  parameters.add(null)
                 }
                 break
               default:
