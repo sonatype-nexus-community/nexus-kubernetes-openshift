@@ -144,13 +144,21 @@ public class OpenShiftConfigPlugin extends LifecycleSupport {
    */
   void readAndConfigure() {
     try {
-      api.listNamespacedConfigMap(namespace, null, null, null, null, "nexus-type==blobstore", null, null, null, Boolean.FALSE)
-          .getItems()
-          .forEach(configMap -> blobStoreConfigWatcher.addBlobStore(configMap, blobStoreManager));
-
-      api.listNamespacedConfigMap(namespace, null, null, null, null, "nexus-type==repository", null, null, null, Boolean.FALSE)
-          .getItems()
+      List<V1ConfigMap> blobStoreItems = api.listNamespacedConfigMap(namespace, null, null, null, null, "nexus-type==blobstore", null, null, null, Boolean.FALSE)
+          .getItems();
+      log.info("Found '{}' blobstore ConfigMaps in namespace '{}'", blobStoreItems.size(), namespace);
+      blobStoreItems
           .forEach(configMap -> {
+            log.info("Provisioning blobstore named '{}'", configMap.getMetadata().getName());
+            blobStoreConfigWatcher.addBlobStore(configMap, blobStoreManager);
+          });
+
+      List<V1ConfigMap> repoItems = api.listNamespacedConfigMap(namespace, null, null, null, null, "nexus-type==repository", null, null, null, Boolean.FALSE)
+          .getItems();
+      log.info("Found '{}' repository ConfigMaps in namespace '{}'", repoItems.size(), namespace);
+      repoItems
+          .forEach(configMap -> {
+            log.info("Provisioning repository named '{}'", configMap.getMetadata().getName());
             try {
               repositoryConfigWatcher.createNewRepository(repository, configMap);
             } catch (Exception e) {
@@ -220,12 +228,12 @@ public class OpenShiftConfigPlugin extends LifecycleSupport {
         security.changePassword("admin", password);
         log.info("Admin password successfully set from Secret.");
       } else {
-        log.info("Unable to retrieve secret 'nexus' from namespace");
+        log.info("Unable to retrieve secret 'nexus' from namespace '{}'", namespace);
       }
     } catch (UserNotFoundException unfe) {
       log.warn("User 'admin' not found, unable to set password", unfe);
     } catch (Exception e) {
-      log.warn("An error occurred while retrieving Secrets from OpenShift");
+      log.warn("An error occurred while retrieving Secrets from OpenShift", e);
     }
   }
 

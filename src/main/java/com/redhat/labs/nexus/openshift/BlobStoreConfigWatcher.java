@@ -35,12 +35,13 @@ public class BlobStoreConfigWatcher {
   private static final Logger LOG = LoggerFactory.getLogger(BlobStoreConfigWatcher.class);
 
   public void addBlobStore(V1ConfigMap configMap, BlobStoreManager manager) {
-    String blobStoreName = configMap.getData().get("name");
+    String blobStoreName = configMap.getMetadata().getName();
+    LOG.info("Provisioning BlobStore named '{}'", blobStoreName);
     // If the blobStoreName is defined and the blobstore does not already exist
     if (blobStoreName != null && !manager.exists(blobStoreName)) {
       // A new ConfigMap labelled as a BlobStore config has been detected. Create the new BlobStore
       BlobStoreConfiguration newConfig = new BlobStoreConfiguration();
-      newConfig.setName(configMap.getData().get("name"));
+      newConfig.setName(blobStoreName);
       newConfig.setType(configMap.getData().getOrDefault("type", "File"));
       newConfig.setWritable(configMap.getData().getOrDefault("writable", "true").toLowerCase().startsWith("t"));
 

@@ -216,6 +216,7 @@ class RepositoryConfigWatcher {
 
   void createNewRepository(RepositoryApi repository, V1ConfigMap configMap) throws Exception {
     String repositoryName = configMap.metadata.name
+    LOG.info("Provisioning repository with name '{}'", repositoryName)
     if (repositoryName != null) {
       def recipe = configMap.data.get("recipe") as String
       if (VALID_RECIPES.get(recipe) != null) {

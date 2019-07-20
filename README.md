@@ -89,7 +89,7 @@ apiVersion: v1
 data:
   remoteUrl: 'https://repo.maven.apache.org/maven2/'
   blobStoreName: 'default'
-  strictContentTypeValidation: true
+  strictContentTypeValidation: 'true'
   versionPolicy: 'RELEASE'
   layoutPolicy: 'STRICT'
 kind: ConfigMap

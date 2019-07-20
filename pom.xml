@@ -363,8 +363,8 @@
             </Include-Resource>
             <!-- clear default to avoid spurious !* warnings -->
             <Private-Package/>
-            <Export-Package>com.google.gson.*;-split-package:=first,org.joda.*;-split-package:=merge-last,io.sundr.*;-split-package:=merge-last,com.redhat.labs.nexus.*,io.kubernetes.*;-split-package:=first,com.squareup.*;-split-package:=first,okio;-split-package:=first,com.google.protobuf.*;-split-package:=first</Export-Package>
-            <Import-Package>!com.google.gson.*,!org.joda.*,!io.sundr.*;-split-package:=merge-last,!com.squareup.*,!io.kubernetes.*;-split-package:=first,!okio,!dalvik.system,!com.android.*,!android.*,!com.google.protobuf.*,!com.microsoft.aad.*,!com.sun.tools.javac.*,!com.werken.*,!org.apache.harmony.*,!org.apache.log.*,!org.jdom.*,!org.apache.oro.*,*</Import-Package>
+            <Export-Package>com.google.gson.*;-split-package:=first,io.sundr.*;-split-package:=merge-last,com.redhat.labs.nexus.*,io.kubernetes.*;-split-package:=first,com.squareup.*;-split-package:=first,okio;-split-package:=first,com.google.protobuf.*;-split-package:=first</Export-Package>
+            <Import-Package>!com.google.gson.*,,!io.sundr.*;-split-package:=merge-last,!com.squareup.*,!io.kubernetes.*;-split-package:=first,!okio,!dalvik.system,!com.android.*,!android.*,!com.google.protobuf.*,!com.microsoft.aad.*,!com.sun.tools.javac.*,!com.werken.*,!org.apache.harmony.*,!org.apache.log.*,!org.jdom.*,!org.apache.oro.*,*</Import-Package>
             <Embed-Dependency>*;scope=compile|runtime;inline=true</Embed-Dependency>
             <Bundle-ClassPath>.,{maven-dependencies}</Bundle-ClassPath>
           </instructions>

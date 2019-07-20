@@ -24,6 +24,7 @@ import io.kubernetes.client.ApiClient
 import io.kubernetes.client.apis.CoreV1Api
 import io.kubernetes.client.models.V1ConfigMap
 import io.kubernetes.client.models.V1ConfigMapList
+import io.kubernetes.client.models.V1ObjectMeta
 import io.kubernetes.client.models.V1Secret
 import org.sonatype.nexus.blobstore.api.BlobStoreManager
 import org.sonatype.nexus.script.plugin.RepositoryApi
@@ -69,6 +70,7 @@ class OpenShiftConfigPluginSpec extends Specification {
       def blobStoreConfigMapList = Mock(V1ConfigMapList)
       def repoStoreConfigMapList = Mock(V1ConfigMapList)
       def mockItem = Mock(V1ConfigMap)
+      def mockMetaData = Mock(V1ObjectMeta)
       def blobItemList = [mockItem] as List
       def repoItemList = [mockItem] as List
       def blobStoreManager = Mock(BlobStoreManager)
@@ -92,6 +94,8 @@ class OpenShiftConfigPluginSpec extends Specification {
       1 * api.listNamespacedConfigMap("testnamespace", null, null, null, null, "nexus-type==repository", null, null, null, Boolean.FALSE) >> repoStoreConfigMapList
       1 * blobStoreConfigMapList.getItems() >> blobItemList
       1 * repoStoreConfigMapList.getItems() >> repoItemList
+      2 * mockItem.getMetadata() >> mockMetaData
+      2 * mockMetaData.getName() >> "itemName"
       1 * mockBlobStoreConfigWatcher.addBlobStore(mockItem, blobStoreManager)
       1 * mockRepoConfigWatcher.createNewRepository(repository, mockItem)
   }
