@@ -78,6 +78,20 @@ mvn clean package bundle:bundle dockerfile:build -Dnexus.dockerfile=Dockerfile.r
 ```
 *NOTE: To build the OpenShift image, you MUST have access to `registry.connect.redhat.com` and have Docker configured to authenticate to that registry.*
 
+## Setting Admin Password
+The Admin password can be set using a `Secret` named `nexus` which contains a kay called `password`. For example:
+
+```yaml
+apiVersion: v1
+data:
+  password: <MY SUPER SECRET PASSWORD>
+kind: Secret
+metadata:
+  name: nexus
+  namespace: labs-ci-cd
+type: Opaque
+```
+
 ## Provisioning BlobStores
 Right now, this ONLY supports File blobstores. Perhaps later, S3 blobstores can be supported.
 
