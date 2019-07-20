@@ -11,6 +11,7 @@ jdk:
 before_script:
   - |
     if [ "$TRAVIS_BRANCH" = "master" ] || [ "${TRAVIS_TAG}X" != "X" ]; then
+      git fetch --unshallow
       mvn -q versions:set@remove-snapshot versions:commit@remove-snapshot -B;
     fi
 script:
