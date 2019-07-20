@@ -79,7 +79,7 @@ mvn clean package bundle:bundle dockerfile:build -Dnexus.dockerfile=Dockerfile.r
 *NOTE: To build the OpenShift image, you MUST have access to `registry.connect.redhat.com` and have Docker configured to authenticate to that registry.*
 
 ## Setting Admin Password
-The Admin password can be set using a `Secret` named `nexus` which contains a kay called `password`. For example:
+The Admin password can be set using a `Secret` named `nexus` which contains a key called `password`. For example:
 
 ```yaml
 apiVersion: v1
