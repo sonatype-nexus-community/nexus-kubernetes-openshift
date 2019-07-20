@@ -19,21 +19,16 @@
  */
 package com.redhat.labs.nexus.openshift
 
-import com.squareup.okhttp.OkHttpClient
 import io.kubernetes.client.ApiClient
 import io.kubernetes.client.apis.CoreV1Api
 import io.kubernetes.client.models.V1ConfigMap
 import io.kubernetes.client.models.V1ConfigMapList
 import io.kubernetes.client.models.V1ObjectMeta
 import io.kubernetes.client.models.V1Secret
-import org.sonatype.nexus.blobstore.api.BlobStoreManager
+import org.sonatype.nexus.BlobStoreApi
 import org.sonatype.nexus.script.plugin.RepositoryApi
 import org.sonatype.nexus.security.SecuritySystem
 import spock.lang.Specification
-
-import java.util.concurrent.TimeUnit
-
-import static java.util.concurrent.TimeUnit.SECONDS
 
 class OpenShiftConfigPluginSpec extends Specification {
 
@@ -42,11 +37,11 @@ class OpenShiftConfigPluginSpec extends Specification {
       def client = Mock(ApiClient)
       def api = Mock(CoreV1Api)
       def security = Mock(SecuritySystem)
-      def blobStoreManager = Mock(BlobStoreManager)
+      def blobStoreManager = Mock(BlobStoreApi)
       def repository = Mock(RepositoryApi)
       def secret = Mock(V1Secret)
       def underTest = new OpenShiftConfigPlugin()
-      underTest.blobStoreManager = blobStoreManager
+      underTest.blobStore = blobStoreManager
       underTest.repository = repository
       underTest.api = api
       underTest.client = client
@@ -73,7 +68,7 @@ class OpenShiftConfigPluginSpec extends Specification {
       def mockMetaData = Mock(V1ObjectMeta)
       def blobItemList = [mockItem] as List
       def repoItemList = [mockItem] as List
-      def blobStoreManager = Mock(BlobStoreManager)
+      def blobStoreManager = Mock(BlobStoreApi)
       def repository = Mock(RepositoryApi)
       def V1Secret secret = Mock(V1Secret)
       def underTest = new OpenShiftConfigPlugin()
@@ -81,7 +76,7 @@ class OpenShiftConfigPluginSpec extends Specification {
       def mockBlobStoreConfigWatcher = Mock(BlobStoreConfigWatcher)
       underTest.repositoryConfigWatcher = mockRepoConfigWatcher
       underTest.blobStoreConfigWatcher = mockBlobStoreConfigWatcher
-      underTest.blobStoreManager = blobStoreManager
+      underTest.blobStore = blobStoreManager
       underTest.repository = repository
       underTest.api = api
       underTest.namespace = "testnamespace"
@@ -100,33 +95,6 @@ class OpenShiftConfigPluginSpec extends Specification {
       1 * mockRepoConfigWatcher.createNewRepository(repository, mockItem)
   }
 
-  def "Start watchers successfully"() {
-    given:
-      def client = Mock(ApiClient)
-      def api = Mock(CoreV1Api)
-      def blobStoreManager = Mock(BlobStoreManager)
-      def repository = Mock(RepositoryApi)
-      def httpClient = Mock(OkHttpClient)
-      def underTest = Spy(OpenShiftConfigPlugin)
-      def mockRepoConfigWatcher = Mock(RepositoryConfigWatcher)
-      def mockBlobStoreConfigWatcher = Mock(BlobStoreConfigWatcher)
-      underTest.repositoryConfigWatcher = mockRepoConfigWatcher
-      underTest.blobStoreConfigWatcher = mockBlobStoreConfigWatcher
-      underTest.blobStoreManager = blobStoreManager
-      underTest.repository = repository
-      underTest.api = api
-      underTest.client = client
-      underTest.namespace = "testnamespace"
-
-    when:
-      underTest.configureWatchers()
-
-    then:
-      1 * client.getHttpClient() >> httpClient
-      1 * httpClient.setReadTimeout(0, SECONDS)
-      2 * underTest.addWatcher(_, _) >> { return }
-  }
-
   def "configureFromCluster happy path"() {
     given:
       def client = Mock(ApiClient)
@@ -140,7 +108,6 @@ class OpenShiftConfigPluginSpec extends Specification {
       1 * client.getBasePath() >> "BASE_PATH"
       1 * underTest.setAdminPassword() >> { return }
       1 * underTest.readAndConfigure() >> { return }
-      1 * underTest.configureWatchers() >> { return }
   }
 
   def "configureFromCluster sad path"() {
