@@ -83,7 +83,7 @@ The Admin password can be set using a `Secret` named `nexus` which contains a ke
 
 ```yaml
 apiVersion: v1
-data:
+stringData:
   password: <MY SUPER SECRET PASSWORD>
 kind: Secret
 metadata:
