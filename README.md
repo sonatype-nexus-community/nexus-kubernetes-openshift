@@ -1,7 +1,6 @@
 # Kubernetes/OpenShift Provisioning Plugin For [Sonatype Nexus](https://www.sonatype.com/nexus-repository-sonatype)
 
 [![Build Status](https://travis-ci.com/InfoSec812/nexus-kubernetes-openshift.svg?branch=v0.2.0)](https://travis-ci.com/InfoSec812/nexus-kubernetes-openshift)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=com.redhat.labs.nexus%3Anexus-openshift-plugin%3A3.0&metric=alert_status)](https://sonarcloud.io/dashboard?id=com.redhat.labs.nexus%3Anexus-openshift-plugin%3A3.0)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=com.redhat.labs.nexus%3Anexus-openshift-plugin%3A3.0&metric=coverage)](https://sonarcloud.io/dashboard?id=com.redhat.labs.nexus%3Anexus-openshift-plugin%3A3.0)
 [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=com.redhat.labs.nexus%3Anexus-openshift-plugin%3A3.0&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=com.redhat.labs.nexus%3Anexus-openshift-plugin%3A3.0)
 [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=com.redhat.labs.nexus%3Anexus-openshift-plugin%3A3.0&metric=bugs)](https://sonarcloud.io/dashboard?id=com.redhat.labs.nexus%3Anexus-openshift-plugin%3A3.0)
