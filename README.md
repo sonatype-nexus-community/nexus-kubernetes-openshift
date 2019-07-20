@@ -165,7 +165,7 @@ Listed below are the fields required for each repository type:
         </tr>
     </thead>
     <tr>
-        <td><a href="https://help.sonatype.com/nxrm3master/formats/apt-repositories">AptHosted</a></td>
+        <td><a target="_blank" href="https://help.sonatype.com/nxrm3master/formats/apt-repositories">AptHosted</a></td>
         <td>description</td>
         <td>String</td>
         <td>false</td>
@@ -207,7 +207,7 @@ Listed below are the fields required for each repository type:
         <td>true</td>
     </tr>
     <tr>
-        <td><a href="https://help.sonatype.com/nxrm3master/formats/apt-repositories">AptProxy</a></td>
+        <td><a target="_blank" href="https://help.sonatype.com/nxrm3master/formats/apt-repositories">AptProxy</a></td>
         <td>remoteUrl</td>
         <td>String</td>
         <td>true</td>
@@ -235,7 +235,7 @@ Listed below are the fields required for each repository type:
         <td>true</td>
     </tr>
     <tr>
-        <td><a href="https://help.sonatype.com/repomanager3/formats/bower-repositories">BowerGroup</a></td>
+        <td><a target="_blank" href="https://help.sonatype.com/repomanager3/formats/bower-repositories">BowerGroup</a></td>
         <td>members</td>
         <td>List&lt;String&gt; (comma-separated list of repositories)</td>
         <td>false</td>
@@ -249,7 +249,7 @@ Listed below are the fields required for each repository type:
         <td>default</td>
     </tr>
     <tr>
-        <td><a href="https://help.sonatype.com/repomanager3/formats/bower-repositories">BowerHosted</a></td>
+        <td><a target="_blank" href="https://help.sonatype.com/repomanager3/formats/bower-repositories">BowerHosted</a></td>
         <td>blobStoreName</td>
         <td>String</td>
         <td>true</td>
@@ -270,7 +270,7 @@ Listed below are the fields required for each repository type:
         <td>ALLOW</td>
     </tr>
     <tr>
-        <td><a href="https://help.sonatype.com/repomanager3/formats/bower-repositories">BowerProxy</a></td>
+        <td><a target="_blank" href="https://help.sonatype.com/repomanager3/formats/bower-repositories">BowerProxy</a></td>
         <td>remoteUrl</td>
         <td>String</td>
         <td>true</td>
@@ -298,7 +298,7 @@ Listed below are the fields required for each repository type:
         <td>true</td>
     </tr>
     <tr>
-        <td><a href="https://help.sonatype.com/repomanager3/formats/docker-registry">DockerGroup</a></td>
+        <td><a target="_blank" href="https://help.sonatype.com/repomanager3/formats/docker-registry">DockerGroup</a></td>
         <td>httpPort</td>
         <td>Integer</td>
         <td>false</td>
@@ -340,7 +340,7 @@ Listed below are the fields required for each repository type:
         <td>true</td>
     </tr>
     <tr>
-        <td><a href="https://help.sonatype.com/repomanager3/formats/docker-registry">DockerHosted</a></td>
+        <td><a target="_blank" href="https://help.sonatype.com/repomanager3/formats/docker-registry">DockerHosted</a></td>
         <td>httpPort</td>
         <td>Integer</td>
         <td>false</td>
@@ -389,7 +389,7 @@ Listed below are the fields required for each repository type:
         <td>true</td>
     </tr>
     <tr>
-        <td><a href="https://help.sonatype.com/repomanager3/formats/docker-registry">DockerProxy</a></td>
+        <td><a target="_blank" href="https://help.sonatype.com/repomanager3/formats/docker-registry">DockerProxy</a></td>
         <td>remoteUrl</td>
         <td>String</td>
         <td>true</td>
@@ -445,7 +445,7 @@ Listed below are the fields required for each repository type:
         <td>true</td>
     </tr>
     <tr>
-        <td><a href="https://help.sonatype.com/repomanager3/formats/git-lfs-repositories">GitLfsHosted</a></td>
+        <td><a target="_blank" href="https://help.sonatype.com/repomanager3/formats/git-lfs-repositories">GitLfsHosted</a></td>
         <td>blobStoreName</td>
         <td>String</td>
         <td>null</td>
@@ -466,7 +466,7 @@ Listed below are the fields required for each repository type:
         <td>ALLOW</td>
     </tr>
     <tr>
-        <td><a href="https://help.sonatype.com/repomanager3/formats/go-repositories">GolangGroup</a></td>
+        <td><a target="_blank" href="https://help.sonatype.com/repomanager3/formats/go-repositories">GolangGroup</a></td>
         <td>members</td>
         <td>List&lt;String&gt; (comma-separated list of repositories)</td>
         <td>false</td>
@@ -480,7 +480,7 @@ Listed below are the fields required for each repository type:
         <td>default</td>
     </tr>
     <tr>
-        <td><a href="https://help.sonatype.com/repomanager3/formats/go-repositories">GolangHosted</a></td>
+        <td><a target="_blank" href="https://help.sonatype.com/repomanager3/formats/go-repositories">GolangHosted</a></td>
         <td>blobStoreName</td>
         <td>String</td>
         <td>true</td>
@@ -501,7 +501,7 @@ Listed below are the fields required for each repository type:
         <td>ALLOW</td>
     </tr>
     <tr>
-        <td><a href="https://help.sonatype.com/repomanager3/formats/go-repositories">GolangProxy</a></td>
+        <td><a target="_blank" href="https://help.sonatype.com/repomanager3/formats/go-repositories">GolangProxy</a></td>
         <td>remoteUrl</td>
         <td>String</td>
         <td>true</td>
@@ -522,7 +522,7 @@ Listed below are the fields required for each repository type:
         <td>true</td>
     </tr>
     <tr>
-        <td><a href="https://help.sonatype.com/repomanager3/formats/maven-repositories">MavenGroup</a></td>
+        <td><a target="_blank" href="https://help.sonatype.com/repomanager3/formats/maven-repositories">MavenGroup</a></td>
         <td>members</td>
         <td>List&lt;String&gt; (comma-separated list of repositories)</td>
         <td>false</td>
@@ -536,7 +536,7 @@ Listed below are the fields required for each repository type:
         <td>default</td>
     </tr>
     <tr>
-        <td><a href="https://help.sonatype.com/repomanager3/formats/maven-repositories">MavenHosted</a></td>
+        <td><a target="_blank" href="https://help.sonatype.com/repomanager3/formats/maven-repositories">MavenHosted</a></td>
         <td>blobStoreName</td>
         <td>String</td>
         <td>true</td>
@@ -571,7 +571,7 @@ Listed below are the fields required for each repository type:
         <td>STRICT</td>
     </tr>
     <tr>
-        <td><a href="https://help.sonatype.com/repomanager3/formats/maven-repositories">MavenProxy</a></td>
+        <td><a target="_blank" href="https://help.sonatype.com/repomanager3/formats/maven-repositories">MavenProxy</a></td>
         <td>remoteUrl</td>
         <td>String</td>
         <td>true</td>
@@ -606,7 +606,7 @@ Listed below are the fields required for each repository type:
         <td>STRICT</td>
     </tr>
     <tr>
-        <td><a href="https://help.sonatype.com/repomanager3/formats/npm-registry">NpmGroup</a></td>
+        <td><a target="_blank" href="https://help.sonatype.com/repomanager3/formats/npm-registry">NpmGroup</a></td>
         <td>members</td>
         <td>List&lt;String&gt; (comma-separated list of repositories)</td>
         <td>false</td>
@@ -620,7 +620,7 @@ Listed below are the fields required for each repository type:
         <td>default</td>
     </tr>
     <tr>
-        <td><a href="https://help.sonatype.com/repomanager3/formats/npm-registry">NpmHosted</a></td>
+        <td><a target="_blank" href="https://help.sonatype.com/repomanager3/formats/npm-registry">NpmHosted</a></td>
         <td>blobStoreName</td>
         <td>String</td>
         <td>true</td>
@@ -641,7 +641,7 @@ Listed below are the fields required for each repository type:
         <td>ALLOW</td>
     </tr>
     <tr>
-        <td><a href="https://help.sonatype.com/repomanager3/formats/npm-registry">NpmProxy</a></td>
+        <td><a target="_blank" href="https://help.sonatype.com/repomanager3/formats/npm-registry">NpmProxy</a></td>
         <td>remoteUrl</td>
         <td>String</td>
         <td>true</td>
@@ -662,7 +662,7 @@ Listed below are the fields required for each repository type:
         <td>true</td>
     </tr>
     <tr>
-        <td><a href="https://help.sonatype.com/repomanager3/formats/nuget-repositories">NugetGroup</a></td>
+        <td><a target="_blank" href="https://help.sonatype.com/repomanager3/formats/nuget-repositories">NugetGroup</a></td>
         <td>members</td>
         <td>List&lt;String&gt; (comma-separated list of repositories)</td>
         <td>false</td>
@@ -676,7 +676,7 @@ Listed below are the fields required for each repository type:
         <td>default</td>
     </tr>
     <tr>
-        <td><a href="https://help.sonatype.com/repomanager3/formats/nuget-repositories">NugetHosted</a></td>
+        <td><a target="_blank" href="https://help.sonatype.com/repomanager3/formats/nuget-repositories">NugetHosted</a></td>
         <td>blobStoreName</td>
         <td>String</td>
         <td>true</td>
@@ -697,7 +697,7 @@ Listed below are the fields required for each repository type:
         <td>ALLOW</td>
     </tr>
     <tr>
-        <td><a href="https://help.sonatype.com/repomanager3/formats/nuget-repositories">NugetProxy</a></td>
+        <td><a target="_blank" href="https://help.sonatype.com/repomanager3/formats/nuget-repositories">NugetProxy</a></td>
         <td>remoteUrl</td>
         <td>String</td>
         <td>true</td>
@@ -718,7 +718,7 @@ Listed below are the fields required for each repository type:
         <td>true</td>
     </tr>
     <tr>
-        <td><a href="https://help.sonatype.com/repomanager3/formats/pypi-repositories">PyPiGroup</a></td>
+        <td><a target="_blank" href="https://help.sonatype.com/repomanager3/formats/pypi-repositories">PyPiGroup</a></td>
         <td>members</td>
         <td>List&lt;String&gt; (comma-separated list of repositories)</td>
         <td>false</td>
@@ -732,7 +732,7 @@ Listed below are the fields required for each repository type:
         <td>default</td>
     </tr>
     <tr>
-        <td><a href="https://help.sonatype.com/repomanager3/formats/pypi-repositories">PyPiHosted</a></td>
+        <td><a target="_blank" href="https://help.sonatype.com/repomanager3/formats/pypi-repositories">PyPiHosted</a></td>
         <td>blobStoreName</td>
         <td>String</td>
         <td>true</td>
@@ -753,7 +753,7 @@ Listed below are the fields required for each repository type:
         <td>ALLOW</td>
     </tr>
     <tr>
-        <td><a href="https://help.sonatype.com/repomanager3/formats/pypi-repositories">PyPiProxy</a></td>
+        <td><a target="_blank" href="https://help.sonatype.com/repomanager3/formats/pypi-repositories">PyPiProxy</a></td>
         <td>remoteUrl</td>
         <td>String</td>
         <td>true</td>
@@ -774,7 +774,7 @@ Listed below are the fields required for each repository type:
         <td>true</td>
     </tr>
     <tr>
-        <td><a href="https://help.sonatype.com/repomanager3/formats/raw-repositories">RawGroup</a></td>
+        <td><a target="_blank" href="https://help.sonatype.com/repomanager3/formats/raw-repositories">RawGroup</a></td>
         <td>members</td>
         <td>List&lt;String&gt; (comma-separated list of repositories)</td>
         <td>false</td>
@@ -788,7 +788,7 @@ Listed below are the fields required for each repository type:
         <td>default</td>
     </tr>
     <tr>
-        <td><a href="https://help.sonatype.com/repomanager3/formats/raw-repositories">RawHosted</a></td>
+        <td><a target="_blank" href="https://help.sonatype.com/repomanager3/formats/raw-repositories">RawHosted</a></td>
         <td>blobStoreName</td>
         <td>String</td>
         <td>true</td>
@@ -809,7 +809,7 @@ Listed below are the fields required for each repository type:
         <td>ALLOW</td>
     </tr>
     <tr>
-        <td><a href="https://help.sonatype.com/repomanager3/formats/raw-repositories">RawProxy</a></td>
+        <td><a target="_blank" href="https://help.sonatype.com/repomanager3/formats/raw-repositories">RawProxy</a></td>
         <td>remoteUrl</td>
         <td>String</td>
         <td>true</td>
@@ -830,7 +830,7 @@ Listed below are the fields required for each repository type:
         <td>true</td>
     </tr>
     <tr>
-        <td><a href="https://help.sonatype.com/repomanager3/formats/rubygems-repositories">RubygemsGroup</a></td>
+        <td><a target="_blank" href="https://help.sonatype.com/repomanager3/formats/rubygems-repositories">RubygemsGroup</a></td>
         <td>members</td>
         <td>List&lt;String&gt; (comma-separated list of repositories)</td>
         <td>false</td>
@@ -844,7 +844,7 @@ Listed below are the fields required for each repository type:
         <td>default</td>
     </tr>
     <tr>
-        <td><a href="https://help.sonatype.com/repomanager3/formats/rubygems-repositories">RubygemsHosted</a></td>
+        <td><a target="_blank" href="https://help.sonatype.com/repomanager3/formats/rubygems-repositories">RubygemsHosted</a></td>
         <td>blobStoreName</td>
         <td>String</td>
         <td>true</td>
@@ -865,7 +865,7 @@ Listed below are the fields required for each repository type:
         <td>ALLOW</td>
     </tr>
     <tr>
-        <td><a href="https://help.sonatype.com/repomanager3/formats/rubygems-repositories">RubygemsProxy</a></td>
+        <td><a target="_blank" href="https://help.sonatype.com/repomanager3/formats/rubygems-repositories">RubygemsProxy</a></td>
         <td>remoteUrl</td>
         <td>String</td>
         <td>true</td>
@@ -886,7 +886,7 @@ Listed below are the fields required for each repository type:
         <td>true</td>
     </tr>
     <tr>
-        <td><a href="https://help.sonatype.com/repomanager3/formats/yum-repositories">YumGroup</a></td>
+        <td><a target="_blank" href="https://help.sonatype.com/repomanager3/formats/yum-repositories">YumGroup</a></td>
         <td>members</td>
         <td>List&lt;String&gt; (comma-separated list of repositories)</td>
         <td>false</td>
@@ -900,7 +900,7 @@ Listed below are the fields required for each repository type:
         <td>default</td>
     </tr>
     <tr>
-        <td><a href="https://help.sonatype.com/repomanager3/formats/yum-repositories">YumHosted</a></td>
+        <td><a target="_blank" href="https://help.sonatype.com/repomanager3/formats/yum-repositories">YumHosted</a></td>
         <td>blobStoreName</td>
         <td>String</td>
         <td>true</td>
@@ -928,7 +928,7 @@ Listed below are the fields required for each repository type:
         <td>&lt;N/A&gt;</td>
     </tr>
     <tr>
-        <td><a href="https://help.sonatype.com/repomanager3/formats/yum-repositories">YumProxy</a></td>
+        <td><a target="_blank" href="https://help.sonatype.com/repomanager3/formats/yum-repositories">YumProxy</a></td>
         <td>remoteUrl</td>
         <td>String</td>
         <td>true</td>
