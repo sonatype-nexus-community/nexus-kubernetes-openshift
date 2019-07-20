@@ -134,8 +134,8 @@ There are a few enumerated data types which you need to know as well:
 <table>
   <thead>
     <tr>
-        <td>Type</td>
-        <td>Allowed Values</td>
+        <th>Type</th>
+        <th>Allowed Values</th>
     </tr>
   </thead>
   <tr>
@@ -400,7 +400,7 @@ Listed below are the fields required for each repository type:
         <td>indexType</td>
         <td>String</td>
         <td>true</td>
-        <td>REGISTRY</td>
+        <td>REGISTRY (Can be REGISTRY, HUB, CUSTOM; CUSTOM requires setting indexUrl below)</td>
     </tr>
     <tr>
         <td></td>
