@@ -60,7 +60,7 @@ class RepositoryConfigWatcherSpec extends Specification {
               recipe: 'DockerProxy',
               remoteUrl: 'https://registry.access.redhat.com',
               httpPort: '9081',
-              indexType: 'HUB'
+              indexType: 'REGISTRY'
       ] as Map<String, String>
       def underTest = new RepositoryConfigWatcher()
 
@@ -71,6 +71,30 @@ class RepositoryConfigWatcherSpec extends Specification {
       1 * configMap.getMetadata() >> metadata
       1 * metadata.getName() >> "testRepository"
       9 * configMap.getData() >> data
-      1 * repositoryApi.createDockerProxy('testRepository', 'https://registry.access.redhat.com', 'HUB', 'https://index.docker.io/', 9081, null, 'default', true, true)
+      1 * repositoryApi.createDockerProxy('testRepository', 'https://registry.access.redhat.com', 'REGISTRY', 'https://hub.docker.io/', 9081, null, 'default', true, true)
+  }
+
+  def "test create docker proxy repository with CUSTOM index and proper indexUrl"() {
+    given:
+      def repositoryApi = Mock(RepositoryApi)
+      def configMap = Mock(V1ConfigMap)
+      def metadata = Mock(V1ObjectMeta)
+      def data = [
+              recipe: 'DockerProxy',
+              remoteUrl: 'https://registry.access.redhat.com',
+              httpPort: '9081',
+              indexType: 'CUSTOM',
+              indexUrl: 'https://index.docker.io/'
+      ] as Map<String, String>
+      def underTest = new RepositoryConfigWatcher()
+
+    when:
+      underTest.createNewRepository(repositoryApi, configMap)
+
+    then:
+      1 * configMap.getMetadata() >> metadata
+      1 * metadata.getName() >> "testRepository"
+      9 * configMap.getData() >> data
+      1 * repositoryApi.createDockerProxy('testRepository', 'https://registry.access.redhat.com', 'CUSTOM', 'https://index.docker.io/', 9081, null, 'default', true, true)
   }
 }

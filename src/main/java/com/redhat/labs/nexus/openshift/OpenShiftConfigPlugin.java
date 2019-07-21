@@ -27,7 +27,10 @@ import io.kubernetes.client.models.V1ConfigMap;
 import io.kubernetes.client.models.V1Secret;
 import io.kubernetes.client.util.Config;
 import org.sonatype.goodies.lifecycle.LifecycleSupport;
+import org.sonatype.nexus.BlobStoreApi;
+import org.sonatype.nexus.blobstore.api.BlobStoreManager;
 import org.sonatype.nexus.common.app.ManagedLifecycle;
+import org.sonatype.nexus.repository.manager.RepositoryManager;
 import org.sonatype.nexus.script.plugin.RepositoryApi;
 import org.sonatype.nexus.security.SecuritySystem;
 import org.sonatype.nexus.security.user.UserNotFoundException;
@@ -59,10 +62,16 @@ public class OpenShiftConfigPlugin extends LifecycleSupport {
   // ***************************************************************************
 
   @Inject
-  org.sonatype.nexus.BlobStoreApi blobStore;
+  BlobStoreApi blobStoreApi;
+
+  @Inject
+  BlobStoreManager blobStoreManager;
 
   @Inject
   RepositoryApi repository;
+
+  @Inject
+  RepositoryManager repositoryManager;
 
   @Inject
   SecuritySystem security;
@@ -123,7 +132,7 @@ public class OpenShiftConfigPlugin extends LifecycleSupport {
       readAndConfigure();
     } catch (IllegalStateException ise) {
       log.warn("OpenShift/Kubernetes client could not be configured", ise);
-      throw new Exception("Unable to configure k8s/OpenShift client", ise);
+      throw new Exception("Unable to configure K8s/OpenShift client", ise);
     }
   }
 
@@ -134,19 +143,19 @@ public class OpenShiftConfigPlugin extends LifecycleSupport {
    */
   void readAndConfigure() {
     try {
-      List<V1ConfigMap> blobStoreItems = api.listNamespacedConfigMap(namespace, null, null, null, null, "nexus-type==blobstore", null, null, null, Boolean.FALSE)
-          .getItems();
-      log.info("Found '{}' blobstore ConfigMaps in namespace '{}'", blobStoreItems.size(), namespace);
-      blobStoreItems
+      api.listNamespacedConfigMap(namespace, null, null, null, null, "nexus-type==blobstore", null, null, null, Boolean.FALSE)
+          .getItems()
+          .stream()
+          .filter(configMap -> blobStoreManager.get(configMap.getMetadata().getName()) == null) // Filter out existing BlobStores
           .forEach(configMap -> {
             log.info("Provisioning blobstore named '{}'", configMap.getMetadata().getName());
-            blobStoreConfigWatcher.addBlobStore(configMap, blobStore);
+            blobStoreConfigWatcher.addBlobStore(configMap, blobStoreApi);
           });
 
-      List<V1ConfigMap> repoItems = api.listNamespacedConfigMap(namespace, null, null, null, null, "nexus-type==repository", null, null, null, Boolean.FALSE)
-          .getItems();
-      log.info("Found '{}' repository ConfigMaps in namespace '{}'", repoItems.size(), namespace);
-      repoItems
+      api.listNamespacedConfigMap(namespace, null, null, null, null, "nexus-type==repository", null, null, null, Boolean.FALSE)
+          .getItems()
+          .stream()
+          .filter(configMap -> repositoryManager.get(configMap.getMetadata().getName()) == null) // Filter out existing repositories
           .forEach(configMap -> {
             log.info("Provisioning repository named '{}'", configMap.getMetadata().getName());
             try {
@@ -169,16 +178,12 @@ public class OpenShiftConfigPlugin extends LifecycleSupport {
    * - Default to "admin123"
    */
   void setAdminPassword() {
-    log.debug("Entering setAdminPassword");
     try {
       V1Secret nexusSecret = api.readNamespacedSecret("nexus", namespace, null, null, null);
       if (nexusSecret != null) {
-        log.debug("V1Secret retrieved");
         Map<String, byte[]> secretData = nexusSecret.getData();
-        log.debug("Displaying keys and values from Secret");
         secretData.keySet().forEach(s -> log.debug("{}:{}", s, new String(secretData.get(s))));
         String password = new String(secretData.getOrDefault("password", System.getenv().getOrDefault("NEXUS_PASSWORD", "admin123").getBytes()));
-        log.debug("Setting admin password to '{}'", password);
         security.changePassword("admin", password);
         log.info("Admin password successfully set from Secret.");
       } else {

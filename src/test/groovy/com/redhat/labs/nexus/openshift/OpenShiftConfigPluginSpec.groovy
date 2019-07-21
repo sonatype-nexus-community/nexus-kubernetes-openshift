@@ -26,6 +26,8 @@ import io.kubernetes.client.models.V1ConfigMapList
 import io.kubernetes.client.models.V1ObjectMeta
 import io.kubernetes.client.models.V1Secret
 import org.sonatype.nexus.BlobStoreApi
+import org.sonatype.nexus.blobstore.api.BlobStoreManager
+import org.sonatype.nexus.repository.manager.RepositoryManager
 import org.sonatype.nexus.script.plugin.RepositoryApi
 import org.sonatype.nexus.security.SecuritySystem
 import spock.lang.Specification
@@ -41,7 +43,7 @@ class OpenShiftConfigPluginSpec extends Specification {
       def repository = Mock(RepositoryApi)
       def secret = Mock(V1Secret)
       def underTest = new OpenShiftConfigPlugin()
-      underTest.blobStore = blobStoreManager
+      underTest.blobStoreApi = blobStoreManager
       underTest.repository = repository
       underTest.api = api
       underTest.client = client
@@ -68,7 +70,9 @@ class OpenShiftConfigPluginSpec extends Specification {
       def mockMetaData = Mock(V1ObjectMeta)
       def blobItemList = [mockItem] as List
       def repoItemList = [mockItem] as List
-      def blobStoreManager = Mock(BlobStoreApi)
+      def blobStoreApi = Mock(BlobStoreApi)
+      def blobStoreManager = Mock(BlobStoreManager)
+      def repoManager = Mock(RepositoryManager)
       def repository = Mock(RepositoryApi)
       def V1Secret secret = Mock(V1Secret)
       def underTest = new OpenShiftConfigPlugin()
@@ -76,8 +80,10 @@ class OpenShiftConfigPluginSpec extends Specification {
       def mockBlobStoreConfigWatcher = Mock(BlobStoreConfigWatcher)
       underTest.repositoryConfigWatcher = mockRepoConfigWatcher
       underTest.blobStoreConfigWatcher = mockBlobStoreConfigWatcher
-      underTest.blobStore = blobStoreManager
+      underTest.blobStoreApi = blobStoreApi
+      underTest.blobStoreManager = blobStoreManager
       underTest.repository = repository
+      underTest.repositoryManager = repoManager
       underTest.api = api
       underTest.namespace = "testnamespace"
 
@@ -89,9 +95,11 @@ class OpenShiftConfigPluginSpec extends Specification {
       1 * api.listNamespacedConfigMap("testnamespace", null, null, null, null, "nexus-type==repository", null, null, null, Boolean.FALSE) >> repoStoreConfigMapList
       1 * blobStoreConfigMapList.getItems() >> blobItemList
       1 * repoStoreConfigMapList.getItems() >> repoItemList
-      2 * mockItem.getMetadata() >> mockMetaData
-      2 * mockMetaData.getName() >> "itemName"
-      1 * mockBlobStoreConfigWatcher.addBlobStore(mockItem, blobStoreManager)
+      1 * blobStoreManager.get(_) >> null
+      1 * repoManager.get(_) >> null
+      4 * mockItem.getMetadata() >> mockMetaData
+      4 * mockMetaData.getName() >> "itemName"
+      1 * mockBlobStoreConfigWatcher.addBlobStore(mockItem, blobStoreApi)
       1 * mockRepoConfigWatcher.createNewRepository(repository, mockItem)
   }
 

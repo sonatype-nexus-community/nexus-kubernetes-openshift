@@ -33,7 +33,7 @@ class RepositoryConfigWatcher {
 
   private static final Logger LOG = LoggerFactory.getLogger(RepositoryConfigWatcher.class)
 
-  private final Map<String, Object> VALID_RECIPES = [
+  private final def VALID_RECIPES = [
           'AptHosted'     : [
                   description                : [type: 'String', required: false],
                   pgpPrivateKey              : [type: 'String', required: false],
@@ -83,7 +83,7 @@ class RepositoryConfigWatcher {
           'DockerProxy'   : [
                   remoteUrl                  : [type: 'String', required: true],
                   indexType                  : [type: 'String', required: true, default: 'REGISTRY'],
-                  indexUrl                   : [type: 'String', required: false],
+                  indexUrl                   : [type: 'String', required: false, default: 'https://hub.docker.io/'],
                   httpPort                   : [type: 'Integer', required: false],
                   httpsPort                  : [type: 'Integer', required: false],
                   blobStoreName              : [type: 'String', required: true, default: BlobStoreManager.DEFAULT_BLOBSTORE_NAME],
@@ -214,98 +214,97 @@ class RepositoryConfigWatcher {
           ]
   ]
 
+  /**
+   * Given a {@link V1ConfigMap} and an instance of {@link RepositoryApi}, parse the configmap
+   * to determine the correct resipe and then use the defined recipe fields to call the
+   * appropriate method on {@link RepositoryApi} with the appropriate parameters.
+   * @param repository An instance of {@link RepositoryApi} used to create repository configurations
+   * @param configMap A {@link V1ConfigMap} which SHOULD have the correct parameters for the indicated recipe
+   * @throws Exception If there is an error provisioning the repository
+   */
   void createNewRepository(RepositoryApi repository, V1ConfigMap configMap) throws Exception {
     String repositoryName = configMap.metadata.name
     LOG.info("Provisioning repository with name '{}'", repositoryName)
-    if (repositoryName != null) {
-      def recipe = configMap.data.get("recipe") as String
-      if (VALID_RECIPES.get(recipe) != null) {
-        Map<String, Map<String, Object>> fields = VALID_RECIPES[recipe] as Map<String, Map<String, Object>>
-        def parameters = [repositoryName] as List<Object>
-        for (Map.Entry<String, Map<String, Object>> item : fields.entrySet()) {
-          Map field = item.value
-          String key = item.key
-          if (key != 'indexUrl' && key != 'recipe') {
-            String type = field.type
-            switch (type) {
-              case 'String':
-                def value = configMap.data.getOrDefault(key, (String)field.default)
-                parameters.add(value)
+    def recipe = configMap.data.get("recipe") as String
+    if (VALID_RECIPES.get(recipe) != null) {
+      def fields = VALID_RECIPES[recipe]
 
-                // This handles a special case for DockerProxy recipe
-                if (recipe == 'DockerProxy' && key == 'indexType' && value != 'REGISTRY') {
-                  def indexUrlValue = configMap.data.getOrDefault('indexUrl', 'https://index.docker.io/')
-                  parameters.add(indexUrlValue)
-                } else if (recipe == 'DockerProxy' && key == 'indexType') { // If indexType is REGISTRY or HUB, set indexUrl to null
-                  parameters.add(null)
-                }
-                if (value == null && field.required) {
-                  throw new Exception("Required parameter '${key}' for recipe '${recipe}' is null. Refusing to provision repository")
-                } else if (!field.required) {
-                  parameters.add(null)
-                }
-                break
-              case 'List<String>':
-                def value = Arrays.asList(configMap.data.getOrDefault(key, (String)field.default).split(','))
-                parameters.add(value)
-                if (value == null && field.required) {
-                  throw new Exception("Required parameter '${key}' for recipe '${recipe}' is null. Refusing to provision repository")
-                } else if (!field.required) {
-                  parameters.add(null)
-                }
-                break
-              case 'Integer':
-                def value = configMap.data.getOrDefault(key, (String) field.default)
-                if (value == null && !key.startsWith('http') && field.required) {
-                  throw new Exception("Required parameter '${key}' for recipe '${recipe}' is null. Refusing to provision repository")
-                } else if (value != null) {
-                  parameters.add(new Integer(Integer.parseInt(value)))
-                } else if (!field.required) {
-                  parameters.add(null)
-                }
-                break
-              case 'boolean':  // All booleans in the config have a default value, so no need to do a null check on this branch
-                def value = configMap.data.getOrDefault(key, (String) field.default).toLowerCase().contentEquals("true")
-                parameters.add(value)
-                break
-              case 'WritePolicy':
-                def value = WritePolicy.valueOf(configMap.data.getOrDefault(key, (String) field.default).toUpperCase())
-                parameters.add(value)
-                if (value == null && field.required) {
-                  throw new Exception("Required parameter '${key}' for recipe '${recipe}' is null. Refusing to provision repository")
-                } else if (!field.required) {
-                  parameters.add(null)
-                }
-                break
-              case 'VersionPolicy':
-                def value = VersionPolicy.valueOf(configMap.data.getOrDefault(key, (String) field.default).toUpperCase())
-                parameters.add(value)
-                if (value == null && field.required) {
-                  throw new Exception("Required parameter '${key}' for recipe '${recipe}' is null. Refusing to provision repository")
-                } else if (!field.required) {
-                  parameters.add(null)
-                }
-                break
-              case 'LayoutPolicy':
-                def value = LayoutPolicy.valueOf(configMap.data.getOrDefault(key, (String) field.default).toUpperCase())
-                parameters.add(value)
-                if (value == null && field.required) {
-                  throw new Exception("Required parameter '${key}' for recipe '${recipe}' is null. Refusing to provision repository")
-                } else if (!field.required) {
-                  parameters.add(null)
-                }
-                break
-              default:
-                LOG.warn("Unexpected field type '{}'", type)
-            }
-          }
-        }
-        repository."create${recipe}"(*parameters)
-      } else {
-        LOG.warn("${recipe} is not a valid Nexus recipe")
+      // The list of parameters MUST exactly match the required number of parameters for
+      // the specified recipe or the dynamic method call later will not work.
+      def parameters = [repositoryName] as List<Object>
+      fields.each {
+        parameters.add(null)
       }
+      fields.entrySet().eachWithIndex { item, i ->
+        def idx = i + 1
+        def field = item.value
+        String key = item.key
+        String type = field.type
+        switch (type) {
+          case 'String':
+            def value = configMap.data.getOrDefault(key, (String)field.default)
+            parameters.set(idx, value)
+            if (value == null && field.required) {
+              throw new Exception("Required parameter '${key}' for recipe '${recipe}' is null. Refusing to provision repository")
+            }
+            break
+          case 'List<String>':
+            def value = Arrays.asList(configMap.data.getOrDefault(key, (String)field.default).split(','))
+            parameters.set(idx, value)
+            if (value == null && field.required) {
+              throw new Exception("Required parameter '${key}' for recipe '${recipe}' is null. Refusing to provision repository")
+            } else if (!field.required) {
+              parameters.set(idx, null)
+            }
+            break
+          case 'Integer':
+            def value = configMap.data.getOrDefault(key, (String) field.default)
+            if (value == null && !key.startsWith('http') && field.required) {
+              throw new Exception("Required parameter '${key}' for recipe '${recipe}' is null. Refusing to provision repository")
+            } else if (value != null) {
+              parameters.set(idx, new Integer(Integer.parseInt(value)))
+            } else if (!field.required) {
+              parameters.set(idx, null)
+            }
+            break
+          case 'boolean':  // All booleans in the config have a default value, so no need to do a null check on this branch
+            def value = configMap.data.getOrDefault(key, (String) field.default).toLowerCase().contentEquals("true")
+            parameters.set(idx, value)
+            break
+          case 'WritePolicy':
+            def value = WritePolicy.valueOf(configMap.data.getOrDefault(key, (String) field.default).toUpperCase())
+            parameters.set(idx, value)
+            if (value == null && field.required) {
+              throw new Exception("Required parameter '${key}' for recipe '${recipe}' is null. Refusing to provision repository")
+            } else if (!field.required) {
+              parameters.set(idx, null)
+            }
+            break
+          case 'VersionPolicy':
+            def value = VersionPolicy.valueOf(configMap.data.getOrDefault(key, (String) field.default).toUpperCase())
+            parameters.set(idx, value)
+            if (value == null && field.required) {
+              throw new Exception("Required parameter '${key}' for recipe '${recipe}' is null. Refusing to provision repository")
+            } else if (!field.required) {
+              parameters.set(idx, null)
+            }
+            break
+          case 'LayoutPolicy':
+            def value = LayoutPolicy.valueOf(configMap.data.getOrDefault(key, (String) field.default).toUpperCase())
+            parameters.set(idx, value)
+            if (value == null && field.required) {
+              throw new Exception("Required parameter '${key}' for recipe '${recipe}' is null. Refusing to provision repository")
+            } else if (!field.required) {
+              parameters.set(idx, null)
+            }
+            break
+          default:
+            LOG.warn("Unexpected field type '{}'", type)
+        }
+      }
+      repository."create${recipe}"(*parameters)
     } else {
-      LOG.warn("Repository name is not set or repository already exists, refusing to recreate existing repository or unnamed repository")
+      LOG.warn("'${recipe}' is not a valid Nexus recipe")
     }
   }
 }
