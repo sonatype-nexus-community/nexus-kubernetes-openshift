@@ -69,7 +69,7 @@ metadata:
 ```
 
 ## Provisioning Repositories
-Nexus supports a number of different repository types, and each one has different required settings. 
+Nexus supports a number of different repository types, and each one has different required settings.
 
 ### Example ConfigMap
 ```yaml
@@ -88,6 +88,7 @@ metadata:
   labels:
     nexus-type: repository
 ```
+More example ConfigMaps can be seen [HERE](src/test/resources/exampleConfigMaps/)
 
 There are a few enumerated data types which you need to know as well:
 
