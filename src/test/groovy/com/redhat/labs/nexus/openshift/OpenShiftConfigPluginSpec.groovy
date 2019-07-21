@@ -32,6 +32,8 @@ import org.sonatype.nexus.script.plugin.RepositoryApi
 import org.sonatype.nexus.security.SecuritySystem
 import spock.lang.Specification
 
+import java.util.stream.Collectors
+
 class OpenShiftConfigPluginSpec extends Specification {
 
   def "Successfully sets admin password"() {
@@ -130,5 +132,28 @@ class OpenShiftConfigPluginSpec extends Specification {
     then:
       client.getBasePath() >> { throw Mock(IllegalStateException) }
       thrown(Exception)
+  }
+
+  def "test repositorySorting"() {
+    given:
+      def mockConfigMapProxy = Mock(V1ConfigMap) {
+        getData() >> ["recipe": 'DockerProxy']
+      }
+      def mockConfigMapHosted = Mock(V1ConfigMap) {
+        getData() >> ["recipe": 'DockerHosted']
+      }
+      def mockConfigMapGroup = Mock(V1ConfigMap) {
+        getData() >> ["recipe": 'DockerGroup']
+      }
+      def configMapList = [mockConfigMapGroup, mockConfigMapGroup, mockConfigMapHosted, mockConfigMapHosted, mockConfigMapProxy, mockConfigMapGroup]
+      def underTest = new OpenShiftConfigPlugin()
+
+    when:
+      def listResult = configMapList.stream().sorted(underTest.&repositorySorter).collect(Collectors.toList())
+
+    then:
+      listResult.get(3) == mockConfigMapGroup
+      listResult.get(4) == mockConfigMapGroup
+      listResult.get(5) == mockConfigMapGroup
   }
 }

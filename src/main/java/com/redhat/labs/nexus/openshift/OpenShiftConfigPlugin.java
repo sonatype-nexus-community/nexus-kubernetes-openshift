@@ -23,6 +23,7 @@ package com.redhat.labs.nexus.openshift;
 import io.kubernetes.client.ApiClient;
 import io.kubernetes.client.ApiException;
 import io.kubernetes.client.apis.CoreV1Api;
+import io.kubernetes.client.models.V1ConfigMap;
 import io.kubernetes.client.models.V1Secret;
 import io.kubernetes.client.util.Config;
 import org.sonatype.goodies.lifecycle.LifecycleSupport;
@@ -154,6 +155,7 @@ public class OpenShiftConfigPlugin extends LifecycleSupport {
           .getItems()
           .stream()
           .filter(configMap -> repositoryManager.get(configMap.getMetadata().getName()) == null) // Filter out existing repositories
+          .sorted(this::repositorySorter)  // Sort Group recipes to last
           .forEach(configMap -> {
             log.info("Provisioning repository named '{}'", configMap.getMetadata().getName());
             try {
@@ -195,11 +197,23 @@ public class OpenShiftConfigPlugin extends LifecycleSupport {
   }
 
   /**
-   * When this bundle is stopped, clean up before we exit.
+   * Sort list of repository ConfigMap objects such that all Group recipes will happen last
+   * @param i1 The first {@link V1ConfigMap} object to be compared
+   * @param i2 The second {@link V1ConfigMap} object to be compared
+   * @return And integer indicating the order of the items in the list
    */
-  @Override
-  protected void doStop() {
-    api = null;
-    client = null;
+  int repositorySorter(V1ConfigMap i1, V1ConfigMap i2) {
+    String recipeI1 = i1.getData().get("recipe");
+    String recipeI2 = i2.getData().get("recipe");
+    boolean i1IsGroup = recipeI1.endsWith("Group");
+    boolean i2IsGroup = recipeI2.endsWith("Group");
+
+    if (i1IsGroup && i2IsGroup) {
+      return 0;
+    } else if (i1IsGroup && !i2IsGroup) {
+      return 1;
+    } else {
+      return -1;
+    }
   }
 }
