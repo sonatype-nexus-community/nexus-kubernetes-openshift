@@ -10,3 +10,5 @@ target
 deploy
 serviceaccount
 .scannerwork
+compose.yml
+OCP_ENV
