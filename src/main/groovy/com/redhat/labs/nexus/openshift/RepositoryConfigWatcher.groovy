@@ -238,6 +238,8 @@ class RepositoryConfigWatcher {
                 if (recipe == 'DockerProxy' && key == 'indexType' && value != 'REGISTRY') {
                   def indexUrlValue = configMap.data.getOrDefault('indexUrl', 'https://index.docker.io/')
                   parameters.add(indexUrlValue)
+                } else if (recipe == 'DockerProxy' && key == 'indexType') { // If indexType is REGISTRY or HUB, set indexUrl to null
+                  parameters.add(null)
                 }
                 if (value == null && field.required) {
                   throw new Exception("Required parameter '${key}' for recipe '${recipe}' is null. Refusing to provision repository")
