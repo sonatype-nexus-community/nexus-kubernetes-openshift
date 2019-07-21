@@ -21,6 +21,7 @@ package com.redhat.labs.nexus.openshift
  */
 
 import io.kubernetes.client.models.V1ConfigMap
+import org.apache.commons.collections.list.FixedSizeList
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.sonatype.nexus.blobstore.api.BlobStoreManager
@@ -33,6 +34,10 @@ class RepositoryConfigWatcher {
 
   private static final Logger LOG = LoggerFactory.getLogger(RepositoryConfigWatcher.class)
 
+  // *** !!!WARNING!!! ***
+  // The order of the fields in this map matches the order they must be in when passing them
+  // as parameters to the appropriate method in RepositoryApi. Do not re-order/add/remove
+  // fields without serious consideration.
   private final def VALID_RECIPES = [
           'AptHosted'     : [
                   description                : [type: 'String', required: false],
@@ -231,11 +236,12 @@ class RepositoryConfigWatcher {
 
       // The list of parameters MUST exactly match the required number of parameters for
       // the specified recipe or the dynamic method call later will not work.
-      def parameters = [repositoryName] as List<Object>
-      fields.each {
-        parameters.add(null)
-      }
+      def numberOfArguments = fields.size() + 1
+      def parameters = FixedSizeList.decorate(Arrays.asList(new Object[numberOfArguments]))
+      parameters.set(0, repositoryName)
+      for (int x=1; x<numberOfArguments; x++) { parameters.set(x, null) }
       fields.entrySet().eachWithIndex { item, i ->
+        // Since repository name is the first argument to ALL recipes, skip the first argument when doing assignments
         def idx = i + 1
         def field = item.value
         String key = item.key
