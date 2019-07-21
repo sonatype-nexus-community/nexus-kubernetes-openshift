@@ -229,8 +229,6 @@ class RepositoryConfigWatcher {
             String type = field.type
             switch (type) {
               case 'String':
-                // indexType                  : [type: 'String', required: true, default: 'REGISTRY'],    // TODO: This will require special logic : REGISTRY, HUB, CUSTOM
-                // indexUrl                   : [type: 'String', required: false],
                 def value = configMap.data.getOrDefault(key, (String)field.default)
                 parameters.add(value)
 
