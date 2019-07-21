@@ -210,7 +210,7 @@ public class OpenShiftConfigPlugin extends LifecycleSupport {
 
     if (i1IsGroup && i2IsGroup) {
       return 0;
-    } else if (i1IsGroup && !i2IsGroup) {
+    } else if (!i2IsGroup) {
       return 1;
     } else {
       return -1;
