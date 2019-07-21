@@ -1,0 +1,15 @@
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-blobstore
+  namespace: labs-ci-cd
+  labels:
+    nexus-type: repository
+data:
+  recipe: DockerProxy
+  remoteUrl: remoteUrl
+  indexType: REGISTRY
+  blobStoreName: default
+  strictContentTypeValidation: true
+  v1Enabled: true
