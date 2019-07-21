@@ -23,7 +23,6 @@ package com.redhat.labs.nexus.openshift;
 import io.kubernetes.client.ApiClient;
 import io.kubernetes.client.ApiException;
 import io.kubernetes.client.apis.CoreV1Api;
-import io.kubernetes.client.models.V1ConfigMap;
 import io.kubernetes.client.models.V1Secret;
 import io.kubernetes.client.util.Config;
 import org.sonatype.goodies.lifecycle.LifecycleSupport;
@@ -43,7 +42,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
-import java.util.List;
 import java.util.Map;
 import static org.sonatype.nexus.common.app.ManagedLifecycle.Phase.TASKS;
 
