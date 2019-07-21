@@ -40,7 +40,7 @@ class RepositoryConfigWatcher {
                   pgpPassPhrase              : [type: 'String', required: false],
                   blobStoreName              : [type: 'String', required: true, default: BlobStoreManager.DEFAULT_BLOBSTORE_NAME],
                   writePolicy                : [type: 'WritePolicy', required: true, default: WritePolicy.ALLOW],
-                  strictContentTypeValidation: [type: 'boolean', required: true, default: Boolean.TRUE]
+                  strictContentTypeValidation: [type: 'boolean', required: true, default: true]
           ],
           'AptProxy'      : [
                   remoteUrl                  : [type: 'String', required: true],
@@ -220,9 +220,9 @@ class RepositoryConfigWatcher {
     if (repositoryName != null) {
       def recipe = configMap.data.get("recipe") as String
       if (VALID_RECIPES.get(recipe) != null) {
-        Map<String, Object> fields = VALID_RECIPES[recipe] as Map<String, Object>
+        Map<String, Map<String, Object>> fields = VALID_RECIPES[recipe] as Map<String, Map<String, Object>>
         def parameters = [repositoryName] as List<Object>
-        for (Map.Entry<String, Object> item : fields.entrySet()) {
+        for (Map.Entry<String, Map<String, Object>> item : fields.entrySet()) {
           Map field = item.value
           String key = item.key
           if (key != 'indexUrl' && key != 'recipe') {
@@ -266,14 +266,9 @@ class RepositoryConfigWatcher {
                   parameters.add(null)
                 }
                 break
-              case 'boolean':
+              case 'boolean':  // All booleans in the config have a default value, so no need to do a null check on this branch
                 def value = configMap.data.getOrDefault(key, (String) field.default).toLowerCase().contentEquals("true")
                 parameters.add(value)
-                if (value == null && field.required) {
-                  throw new Exception("Required parameter '${key}' for recipe '${recipe}' is null. Refusing to provision repository")
-                } else if (!field.required) {
-                  parameters.add(null)
-                }
                 break
               case 'WritePolicy':
                 def value = WritePolicy.valueOf(configMap.data.getOrDefault(key, (String) field.default).toUpperCase())
