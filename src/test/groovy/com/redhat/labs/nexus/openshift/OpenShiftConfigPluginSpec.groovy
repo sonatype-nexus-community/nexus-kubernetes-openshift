@@ -26,9 +26,12 @@ import io.kubernetes.client.models.V1ConfigMapList
 import io.kubernetes.client.models.V1ObjectMeta
 import io.kubernetes.client.models.V1Secret
 import org.sonatype.nexus.BlobStoreApi
+import org.sonatype.nexus.blobstore.api.BlobStore
 import org.sonatype.nexus.blobstore.api.BlobStoreManager
+import org.sonatype.nexus.repository.Repository
 import org.sonatype.nexus.repository.manager.RepositoryManager
 import org.sonatype.nexus.script.plugin.RepositoryApi
+import org.sonatype.nexus.script.plugin.internal.provisioning.RepositoryApiImpl
 import org.sonatype.nexus.security.SecuritySystem
 import spock.lang.Specification
 
@@ -68,7 +71,9 @@ class OpenShiftConfigPluginSpec extends Specification {
       def security = Mock(SecuritySystem)
       def blobStoreConfigMapList = Mock(V1ConfigMapList)
       def repoStoreConfigMapList = Mock(V1ConfigMapList)
-      def mockItem = Mock(V1ConfigMap)
+      def mockItem = Mock(V1ConfigMap) {
+        getData() >> [recipe: "DockerHosted"]
+      }
       def mockMetaData = Mock(V1ObjectMeta)
       def blobItemList = [mockItem] as List
       def repoItemList = [mockItem] as List
@@ -149,11 +154,109 @@ class OpenShiftConfigPluginSpec extends Specification {
       def underTest = new OpenShiftConfigPlugin()
 
     when:
-      def listResult = configMapList.stream().sorted(underTest.&repositorySorter).collect(Collectors.toList())
+      def listResult = configMapList.stream().sorted(underTest.&sortGroupRepositoriesToLast).collect(Collectors.toList())
 
     then:
       listResult.get(3) == mockConfigMapGroup
       listResult.get(4) == mockConfigMapGroup
       listResult.get(5) == mockConfigMapGroup
+  }
+
+  def "Test existing group repositories filter predicate happy path"() {
+    given:
+      def configMap = Mock(V1ConfigMap) {
+        getMetadata() >> [name: 'testRepository']
+        getData() >> [recipe: 'MavenGroup']
+      }
+      def repositoryManager = Mock(RepositoryManager)
+      def repositoryApi = Mock(RepositoryApiImpl) {
+        getRepositoryManager() >> repositoryManager
+      }
+      def mockRepo = Mock(Repository)
+      def underTest = new OpenShiftConfigPlugin()
+      underTest.repositoryManager = repositoryManager
+      underTest.repository = repositoryApi
+
+    when:
+      def result = underTest.filterExistingGroupRepositories(configMap)
+
+    then:
+      1 * repositoryManager.get('testRepository') >> mockRepo
+      assert result
+  }
+
+  def "Test existing group repositories filter predicate sad path"() {
+    given:
+      def configMap = Mock(V1ConfigMap) {
+        getMetadata() >> [name: 'testRepository']
+        getData() >> [recipe: 'MavenGroup']
+      }
+      def repositoryManager = Mock(RepositoryManager)
+      def repositoryApi = Mock(RepositoryApiImpl) {
+        getRepositoryManager() >> repositoryManager
+      }
+      def underTest = new OpenShiftConfigPlugin()
+      underTest.repositoryManager = repositoryManager
+      underTest.repository = repositoryApi
+
+    when:
+      def result = underTest.filterExistingGroupRepositories(configMap)
+
+    then:
+      1 * repositoryManager.get('testRepository') >> null
+      assert !result
+  }
+
+  def "Test filter existing repositories happy path"() {
+    given:
+      def repositoryManager = Mock(RepositoryManager)
+      def configMap = Mock(V1ConfigMap) {
+        getMetadata() >> [name: 'testRepository']
+      }
+      def underTest = new OpenShiftConfigPlugin()
+      underTest.repositoryManager = repositoryManager
+
+    when:
+      def result = underTest.filterExistingRepositories(configMap)
+
+    then:
+      repositoryManager.get('testRepository') >> null
+      assert result
+  }
+
+  def "Test filter existing repositories sad path"() {
+    given:
+      def repositoryManager = Mock(RepositoryManager)
+      def configMap = Mock(V1ConfigMap) {
+        getMetadata() >> [name: 'testRepository']
+      }
+      def mockRepo = Mock(Repository)
+      def underTest = new OpenShiftConfigPlugin()
+      underTest.repositoryManager = repositoryManager
+
+    when:
+      def result = underTest.filterExistingRepositories(configMap)
+
+    then:
+      repositoryManager.get('testRepository') >> mockRepo
+      assert !result
+  }
+
+  def "Test filter existing blobstores"() {
+    given:
+      def blobStoreManager = Mock(BlobStoreManager)
+      def configMap = Mock(V1ConfigMap) {
+        getMetadata() >> [name: 'testBlobStore']
+      }
+      def mockBlobStore = Mock(BlobStore)
+      def underTest = new OpenShiftConfigPlugin()
+      underTest.blobStoreManager = blobStoreManager
+
+    when:
+      def result = underTest.filterExistingBlobStores(configMap)
+
+    then:
+      1 * blobStoreManager.get('testBlobStore') >> mockBlobStore
+      assert !result
   }
 }
