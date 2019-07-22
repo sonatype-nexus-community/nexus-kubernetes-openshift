@@ -347,7 +347,7 @@
         <artifactId>license-maven-plugin</artifactId>
         <version>1.20</version>
         <configuration>
-          <licenseName>apache_v2</licenseName>
+          <licenseName>epl_v2</licenseName>
         </configuration>
       </plugin>
       <plugin>
