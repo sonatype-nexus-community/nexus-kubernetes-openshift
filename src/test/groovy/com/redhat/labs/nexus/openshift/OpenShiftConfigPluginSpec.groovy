@@ -212,6 +212,7 @@ class OpenShiftConfigPluginSpec extends Specification {
       def repositoryManager = Mock(RepositoryManager)
       def configMap = Mock(V1ConfigMap) {
         getMetadata() >> [name: 'testRepository']
+        getData() >> [recipe: 'MavenProxy']
       }
       def underTest = new OpenShiftConfigPlugin()
       underTest.repositoryManager = repositoryManager
@@ -224,11 +225,31 @@ class OpenShiftConfigPluginSpec extends Specification {
       assert result
   }
 
-  def "Test filter existing repositories sad path"() {
+  def "Test filter existing repositories sad path 1"() {
     given:
       def repositoryManager = Mock(RepositoryManager)
       def configMap = Mock(V1ConfigMap) {
         getMetadata() >> [name: 'testRepository']
+        getData() >> [recipe: 'MavenProxy']
+      }
+      def mockRepo = Mock(Repository)
+      def underTest = new OpenShiftConfigPlugin()
+      underTest.repositoryManager = repositoryManager
+
+    when:
+      def result = underTest.filterExistingRepositories(configMap)
+
+    then:
+      repositoryManager.get('testRepository') >> mockRepo
+      assert !result
+  }
+
+  def "Test filter existing repositories sad path 2"() {
+    given:
+      def repositoryManager = Mock(RepositoryManager)
+      def configMap = Mock(V1ConfigMap) {
+        getMetadata() >> [name: 'testRepository']
+        getData() >> [:]
       }
       def mockRepo = Mock(Repository)
       def underTest = new OpenShiftConfigPlugin()

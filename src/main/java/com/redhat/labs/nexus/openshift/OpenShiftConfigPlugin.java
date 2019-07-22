@@ -183,6 +183,11 @@ public class OpenShiftConfigPlugin extends LifecycleSupport {
   }
 
   boolean filterExistingRepositories(V1ConfigMap configMap) {
+    if (configMap.getData().get("recipe") == null) {
+      // If the configMap does not have a recipe specified, fail gracefully.
+      log.warn("ConfigMap named '{}' does not specify a repository recipe. Ignoring.", configMap.getMetadata().getName());
+      return false;
+    }
     Repository repo = repositoryManager.get(configMap.getMetadata().getName());
     if (repo == null) {  // If the repository does not yet exist, allow it
       return true;
