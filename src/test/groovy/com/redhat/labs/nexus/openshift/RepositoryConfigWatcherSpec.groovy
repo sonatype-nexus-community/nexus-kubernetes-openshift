@@ -22,6 +22,9 @@ package com.redhat.labs.nexus.openshift
 import io.kubernetes.client.models.V1ConfigMap
 import io.kubernetes.client.models.V1ObjectMeta
 import org.sonatype.nexus.blobstore.api.BlobStoreManager
+import org.sonatype.nexus.repository.Repository
+import org.sonatype.nexus.repository.config.Configuration
+import org.sonatype.nexus.repository.manager.RepositoryManager
 import org.sonatype.nexus.repository.maven.LayoutPolicy
 import org.sonatype.nexus.repository.maven.VersionPolicy
 import org.sonatype.nexus.repository.storage.WritePolicy
@@ -115,5 +118,26 @@ class RepositoryConfigWatcherSpec extends Specification {
       1 * metadata.getName() >> "testRepository"
       9 * configMap.getData() >> data
       1 * repositoryApi.createDockerProxy('testRepository', 'https://registry.access.redhat.com', 'CUSTOM', 'https://index.docker.io/', 9081, null, 'default', true, true)
+  }
+
+  def "Test update group members"() {
+    given:
+      def repo = Mock(Repository)
+      def config = Mock(Configuration)
+      def repoManager = Mock(RepositoryManager)
+      def configMap = Mock(V1ConfigMap) {
+        getMetadata() >> [name: 'testGroup']
+        getData() >> [members: 'repoA,repoB,repoC,repoD']
+      }
+      def underTest = new RepositoryConfigWatcher()
+
+    when:
+      underTest.updateGroupMembers(repoManager, configMap)
+
+    then:
+      1 * repoManager.get('testGroup') >> repo
+      2 * repo.getConfiguration() >> config
+      1 * config.attributes >> [group: [memeberNames: 'repoA,repoB']]
+      1 * repoManager.update(config)
   }
 }

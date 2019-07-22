@@ -25,6 +25,7 @@ import org.apache.commons.collections.list.FixedSizeList
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.sonatype.nexus.blobstore.api.BlobStoreManager
+import org.sonatype.nexus.repository.manager.RepositoryManager
 import org.sonatype.nexus.repository.maven.LayoutPolicy
 import org.sonatype.nexus.repository.maven.VersionPolicy
 import org.sonatype.nexus.repository.storage.WritePolicy
@@ -55,7 +56,7 @@ class RepositoryConfigWatcher {
                   strictContentTypeValidation: [type: 'boolean', required: true, default: true]
           ],
           'BowerGroup'    : [
-                  members                    : [type: 'List<String>', required: false],
+                  members                    : [type: 'List<String>', required: true, default: ''],
                   blobStoreName              : [type: 'String', required: true, default: BlobStoreManager.DEFAULT_BLOBSTORE_NAME]
           ],
           'BowerHosted'   : [
@@ -72,7 +73,7 @@ class RepositoryConfigWatcher {
           'DockerGroup'   : [
                   httpPort                    : [type: 'Integer', required: false],
                   httpsPort                   : [type: 'Integer', required: false],
-                  members                     : [type: 'List<String>', required: false],
+                  members                     : [type: 'List<String>', required: true, default: ''],
                   v1Enabled                   : [type: 'boolean', required: true, default: true],
                   blobStoreName               : [type: 'String', required: true, default: BlobStoreManager.DEFAULT_BLOBSTORE_NAME],
                   forceBasicAuth              : [type: 'boolean', required: true, default: true]
@@ -102,7 +103,7 @@ class RepositoryConfigWatcher {
                   writePolicy                : [type: 'WritePolicy', required: true, default: WritePolicy.ALLOW]
           ],
           'GolangGroup'   : [
-                  members                    : [type: 'List<String>', required: false],
+                  members                    : [type: 'List<String>', required: true, default: ''],
                   blobStoreName              : [type: 'String', required: true, default: BlobStoreManager.DEFAULT_BLOBSTORE_NAME]
           ],
           'GolangHosted'  : [
@@ -116,7 +117,7 @@ class RepositoryConfigWatcher {
                   strictContentTypeValidation: [type: 'boolean', required: true, default: true]
           ],
           'MavenGroup'    : [
-                  members                    : [type: 'List<String>', required: false],
+                  members                    : [type: 'List<String>', required: true, default: ''],
                   blobStoreName              : [type: 'String', required: true, default: BlobStoreManager.DEFAULT_BLOBSTORE_NAME]
           ],
           'MavenHosted'   : [
@@ -134,7 +135,7 @@ class RepositoryConfigWatcher {
                   layoutPolicy               : [type: 'LayoutPolicy', required: true, default: LayoutPolicy.STRICT]
           ],
           'NpmGroup'      : [
-                  members                    : [type: 'List<String>', required: false],
+                  members                    : [type: 'List<String>', required: true, default: ''],
                   blobStoreName              : [type: 'String', required: true, default: BlobStoreManager.DEFAULT_BLOBSTORE_NAME]
           ],
           'NpmHosted'     : [
@@ -148,7 +149,7 @@ class RepositoryConfigWatcher {
                   strictContentTypeValidation: [type: 'boolean', required: true, default: true]
           ],
           'NugetGroup'    : [
-                  members      : [type: 'List<String>', required: false],
+                  members      : [type: 'List<String>', required: true, default: ''],
                   blobStoreName: [type: 'String', required: true, default: BlobStoreManager.DEFAULT_BLOBSTORE_NAME]
           ],
           'NugetHosted'   : [
@@ -162,7 +163,7 @@ class RepositoryConfigWatcher {
                   strictContentTypeValidation: [type: 'boolean', required: true, default: true]
           ],
           'PyPiGroup'     : [
-                  members                     : [type: 'List<String>', required: false],
+                  members                     : [type: 'List<String>', required: true, default: ''],
                   blobStoreName               : [type: 'String', required: true, default: BlobStoreManager.DEFAULT_BLOBSTORE_NAME]
           ],
           'PyPiHosted'    : [
@@ -176,7 +177,7 @@ class RepositoryConfigWatcher {
                   strictContentTypeValidation: [type: 'boolean', required: true, default: true]
           ],
           'RawGroup'      : [
-                  members                     : [type: 'List<String>', required: false],
+                  members                     : [type: 'List<String>', required: true, default: ''],
                   blobStoreName               : [type: 'String', required: true, default: BlobStoreManager.DEFAULT_BLOBSTORE_NAME]
           ],
           'RawHosted'     : [
@@ -190,7 +191,7 @@ class RepositoryConfigWatcher {
                   strictContentTypeValidation: [type: 'boolean', required: true, default: true]
           ],
           'RubygemsGroup' : [
-                  members                    : [type: 'List<String>', required: false],
+                  members                    : [type: 'List<String>', required: true, default: ''],
                   blobStoreName              : [type: 'String', required: true, default: BlobStoreManager.DEFAULT_BLOBSTORE_NAME]
           ],
           'RubygemsHosted': [
@@ -204,7 +205,7 @@ class RepositoryConfigWatcher {
                   strictContentTypeValidation: [type: 'boolean', required: true, default: true]
           ],
           'YumGroup'      : [
-                  members                    : [type: 'List<String>', required: false],
+                  members                    : [type: 'List<String>', required: true, default: ''],
                   blobStoreName              : [type: 'String', required: true, default: BlobStoreManager.DEFAULT_BLOBSTORE_NAME]
           ],
           'YumHosted'     : [
@@ -225,10 +226,10 @@ class RepositoryConfigWatcher {
    * @param repository An instance of {@link RepositoryApi}
    * @param configMap A {@link V1ConfigMap} containing information about the Group
    */
-  void updateGroupMembers(RepositoryApi repository, V1ConfigMap configMap) {
-    def repo = ((RepositoryApiImpl)repository).repositoryManager.get(configMap.metadata.name)
+  void updateGroupMembers(RepositoryManager repoManager, V1ConfigMap configMap) {
+    def repo = repoManager.get(configMap.metadata.name)
     repo.configuration.attributes.group.memberNames = configMap.getData().get("members").split(',').toList().unique()
-    ((RepositoryApiImpl)repository).repositoryManager.update(repo.configuration)
+    repoManager.update(repo.configuration)
   }
 
   /**
@@ -320,6 +321,7 @@ class RepositoryConfigWatcher {
             LOG.warn("Unexpected field type '{}'", type)
         }
       }
+      LOG.info('Method: {} - Parameters: {}', recipe, parameters)
       repository."create${recipe}"(*parameters)
     } else {
       LOG.warn("'${recipe}' is not a valid Nexus recipe")
