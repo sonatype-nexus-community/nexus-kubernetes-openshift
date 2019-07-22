@@ -29,6 +29,7 @@ import org.sonatype.nexus.repository.maven.LayoutPolicy
 import org.sonatype.nexus.repository.maven.VersionPolicy
 import org.sonatype.nexus.repository.storage.WritePolicy
 import org.sonatype.nexus.script.plugin.RepositoryApi
+import org.sonatype.nexus.script.plugin.internal.provisioning.RepositoryApiImpl
 
 class RepositoryConfigWatcher {
 
@@ -218,6 +219,17 @@ class RepositoryConfigWatcher {
                   strictContentTypeValidation: [type: 'boolean', required: true, default: true]
           ]
   ]
+
+  /**
+   * Given an existing Group repository name, update the member list
+   * @param repository An instance of {@link RepositoryApi}
+   * @param configMap A {@link V1ConfigMap} containing information about the Group
+   */
+  void updateGroupMembers(RepositoryApi repository, V1ConfigMap configMap) {
+    def repo = ((RepositoryApiImpl)repository).repositoryManager.get(configMap.metadata.name)
+    repo.configuration.attributes.group.memberNames = configMap.getData().get("members").split(',').toList().unique()
+    ((RepositoryApiImpl)repository).repositoryManager.update(repo.configuration)
+  }
 
   /**
    * Given a {@link V1ConfigMap} and an instance of {@link RepositoryApi}, parse the configmap

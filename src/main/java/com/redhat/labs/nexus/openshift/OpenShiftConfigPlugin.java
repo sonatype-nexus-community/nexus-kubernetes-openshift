@@ -30,6 +30,7 @@ import org.sonatype.goodies.lifecycle.LifecycleSupport;
 import org.sonatype.nexus.BlobStoreApi;
 import org.sonatype.nexus.blobstore.api.BlobStoreManager;
 import org.sonatype.nexus.common.app.ManagedLifecycle;
+import org.sonatype.nexus.repository.Repository;
 import org.sonatype.nexus.repository.manager.RepositoryManager;
 import org.sonatype.nexus.script.plugin.RepositoryApi;
 import org.sonatype.nexus.security.SecuritySystem;
@@ -43,6 +44,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.util.List;
 import java.util.Map;
 import static org.sonatype.nexus.common.app.ManagedLifecycle.Phase.TASKS;
 
@@ -145,17 +147,16 @@ public class OpenShiftConfigPlugin extends LifecycleSupport {
       api.listNamespacedConfigMap(namespace, null, null, null, null, "nexus-type==blobstore", null, null, null, Boolean.FALSE)
           .getItems()
           .stream()
-          .filter(configMap -> blobStoreManager.get(configMap.getMetadata().getName()) == null) // Filter out existing BlobStores
+          .filter(this::filterExistingBlobStores) // Filter out existing BlobStores
           .forEach(configMap -> {
             log.info("Provisioning blobstore named '{}'", configMap.getMetadata().getName());
             blobStoreConfigWatcher.addBlobStore(configMap, blobStoreApi);
           });
 
-      api.listNamespacedConfigMap(namespace, null, null, null, null, "nexus-type==repository", null, null, null, Boolean.FALSE)
-          .getItems()
-          .stream()
-          .filter(configMap -> repositoryManager.get(configMap.getMetadata().getName()) == null) // Filter out existing repositories
-          .sorted(this::repositorySorter)  // Sort Group recipes to last
+      List<V1ConfigMap> allRepos = api.listNamespacedConfigMap(namespace, null, null, null, null, "nexus-type==repository", null, null, null, Boolean.FALSE)
+          .getItems();
+      allRepos.stream().filter(this::filterExistingRepositories) // Filter out existing repositories
+          .sorted(this::sortGroupRepositoriesToLast)  // Sort Group recipes to last
           .forEach(configMap -> {
             log.info("Provisioning repository named '{}'", configMap.getMetadata().getName());
             try {
@@ -164,9 +165,29 @@ public class OpenShiftConfigPlugin extends LifecycleSupport {
               log.warn("Failed to create repository", e);
             }
           });
+      allRepos.stream().filter(this::filterExistingGroupRepositories)
+          .forEach(configMap -> repositoryConfigWatcher.updateGroupMembers(repository, configMap));
     } catch (ApiException e) {
       log.error("Error reading ConfigMaps", e);
     }
+  }
+
+  boolean filterExistingGroupRepositories(V1ConfigMap configMap) {
+    if (configMap.getData().get("recipe").endsWith("Group")) {
+      Repository repo = repositoryManager.get(configMap.getMetadata().getName());
+      if (repo != null) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  boolean filterExistingRepositories(V1ConfigMap configMap) {
+    Repository repo = repositoryManager.get(configMap.getMetadata().getName());
+    if (repo == null) {  // If the repository does not yet exist, allow it
+      return true;
+    }
+    return false;
   }
 
   /**
@@ -202,7 +223,7 @@ public class OpenShiftConfigPlugin extends LifecycleSupport {
    * @param i2 The second {@link V1ConfigMap} object to be compared
    * @return And integer indicating the order of the items in the list
    */
-  int repositorySorter(V1ConfigMap i1, V1ConfigMap i2) {
+  int sortGroupRepositoriesToLast(V1ConfigMap i1, V1ConfigMap i2) {
     String recipeI1 = i1.getData().get("recipe");
     String recipeI2 = i2.getData().get("recipe");
     boolean i1IsGroup = recipeI1.endsWith("Group");
@@ -215,5 +236,9 @@ public class OpenShiftConfigPlugin extends LifecycleSupport {
     } else {
       return -1;
     }
+  }
+
+  boolean filterExistingBlobStores(V1ConfigMap configMap) {
+    return blobStoreManager.get(configMap.getMetadata().getName()) == null;
   }
 }
