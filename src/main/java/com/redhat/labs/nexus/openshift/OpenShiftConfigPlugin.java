@@ -166,7 +166,7 @@ public class OpenShiftConfigPlugin extends LifecycleSupport {
             }
           });
       allRepos.stream().filter(this::filterExistingGroupRepositories)
-          .forEach(configMap -> repositoryConfigWatcher.updateGroupMembers(repository, configMap));
+          .forEach(configMap -> repositoryConfigWatcher.updateGroupMembers(repositoryManager, configMap));
     } catch (ApiException e) {
       log.error("Error reading ConfigMaps", e);
     }

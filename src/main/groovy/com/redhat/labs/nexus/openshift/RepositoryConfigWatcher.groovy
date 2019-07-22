@@ -25,6 +25,7 @@ import org.apache.commons.collections.list.FixedSizeList
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.sonatype.nexus.blobstore.api.BlobStoreManager
+import org.sonatype.nexus.repository.manager.RepositoryManager
 import org.sonatype.nexus.repository.maven.LayoutPolicy
 import org.sonatype.nexus.repository.maven.VersionPolicy
 import org.sonatype.nexus.repository.storage.WritePolicy
@@ -225,10 +226,10 @@ class RepositoryConfigWatcher {
    * @param repository An instance of {@link RepositoryApi}
    * @param configMap A {@link V1ConfigMap} containing information about the Group
    */
-  void updateGroupMembers(RepositoryApi repository, V1ConfigMap configMap) {
-    def repo = ((RepositoryApiImpl)repository).repositoryManager.get(configMap.metadata.name)
+  void updateGroupMembers(RepositoryManager repoManager, V1ConfigMap configMap) {
+    def repo = repoManager.get(configMap.metadata.name)
     repo.configuration.attributes.group.memberNames = configMap.getData().get("members").split(',').toList().unique()
-    ((RepositoryApiImpl)repository).repositoryManager.update(repo.configuration)
+    repoManager.update(repo.configuration)
   }
 
   /**
