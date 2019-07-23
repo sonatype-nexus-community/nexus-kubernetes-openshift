@@ -1,10 +1,10 @@
-FROM sonatype/nexus3:latest
+FROM sonatype/nexus3:3.10.0
 LABEL maintainer="Deven Phillips <deven.phillips@redhat.com>" \
       vendor="Red Hat" \
       description="Sonatype Nexus repository manager with Kubernetes/OpenShift Config plugin" \
       source="https://github.com/InfoSec812/nexus-kubernetes-openshift" \
       documentation="https://github.com/InfoSec812/nexus-kubernetes-openshift/blob/master/README.md"
-ARG PLUGIN_VERSION=0.2.6
+ARG PLUGIN_VERSION=0.2.7
 
 USER root
 ADD https://github.com/InfoSec812/nexus-kubernetes-openshift/releases/download/v${PLUGIN_VERSION}/nexus-openshift-plugin-${PLUGIN_VERSION}.jar /opt/sonatype/nexus/deploy/nexus-openshift-plugin.jar
