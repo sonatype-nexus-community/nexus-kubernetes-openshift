@@ -44,12 +44,8 @@ class OpenShiftConfigPluginSpec extends Specification {
       def client = Mock(ApiClient)
       def api = Mock(CoreV1Api)
       def security = Mock(SecuritySystem)
-      def blobStoreManager = Mock(BlobStoreApi)
-      def repository = Mock(RepositoryApi)
       def secret = Mock(V1Secret)
       def underTest = new OpenShiftConfigPlugin()
-      underTest.blobStoreApi = blobStoreManager
-      underTest.repository = repository
       underTest.api = api
       underTest.client = client
       underTest.security = security
@@ -68,7 +64,6 @@ class OpenShiftConfigPluginSpec extends Specification {
   def "Successfully reads ConfigMaps and applies them"() {
     given:
       def api = Mock(CoreV1Api)
-      def security = Mock(SecuritySystem)
       def blobStoreConfigMapList = Mock(V1ConfigMapList)
       def repoStoreConfigMapList = Mock(V1ConfigMapList)
       def mockItem = Mock(V1ConfigMap) {
@@ -87,9 +82,7 @@ class OpenShiftConfigPluginSpec extends Specification {
       def mockBlobStoreConfigWatcher = Mock(BlobStoreConfigWatcher)
       underTest.repositoryConfigWatcher = mockRepoConfigWatcher
       underTest.blobStoreConfigWatcher = mockBlobStoreConfigWatcher
-      underTest.blobStoreApi = blobStoreApi
       underTest.blobStoreManager = blobStoreManager
-      underTest.repository = repository
       underTest.repositoryManager = repoManager
       underTest.api = api
       underTest.namespace = "testnamespace"
@@ -106,8 +99,8 @@ class OpenShiftConfigPluginSpec extends Specification {
       1 * repoManager.get(_) >> null
       4 * mockItem.getMetadata() >> mockMetaData
       4 * mockMetaData.getName() >> "itemName"
-      1 * mockBlobStoreConfigWatcher.addBlobStore(mockItem, blobStoreApi)
-      1 * mockRepoConfigWatcher.createNewRepository(repository, mockItem)
+      1 * mockBlobStoreConfigWatcher.addBlobStore(mockItem)
+      1 * mockRepoConfigWatcher.createNewRepository(mockItem)
   }
 
   def "configureFromCluster happy path"() {
@@ -169,13 +162,9 @@ class OpenShiftConfigPluginSpec extends Specification {
         getData() >> [recipe: 'MavenGroup']
       }
       def repositoryManager = Mock(RepositoryManager)
-      def repositoryApi = Mock(RepositoryApiImpl) {
-        getRepositoryManager() >> repositoryManager
-      }
       def mockRepo = Mock(Repository)
       def underTest = new OpenShiftConfigPlugin()
       underTest.repositoryManager = repositoryManager
-      underTest.repository = repositoryApi
 
     when:
       def result = underTest.filterExistingGroupRepositories(configMap)
@@ -192,12 +181,8 @@ class OpenShiftConfigPluginSpec extends Specification {
         getData() >> [recipe: 'MavenGroup']
       }
       def repositoryManager = Mock(RepositoryManager)
-      def repositoryApi = Mock(RepositoryApiImpl) {
-        getRepositoryManager() >> repositoryManager
-      }
       def underTest = new OpenShiftConfigPlugin()
       underTest.repositoryManager = repositoryManager
-      underTest.repository = repositoryApi
 
     when:
       def result = underTest.filterExistingGroupRepositories(configMap)

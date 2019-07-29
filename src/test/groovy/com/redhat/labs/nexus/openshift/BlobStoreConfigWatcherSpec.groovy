@@ -32,9 +32,10 @@ class BlobStoreConfigWatcherSpec extends Specification {
       }
       def blobStoreApi = Mock(BlobStoreApi)
       def underTest = new BlobStoreConfigWatcher()
+      underTest.blobStoreApi = blobStoreApi
 
     when:
-      underTest.addBlobStore(configMap, blobStoreApi)
+      underTest.addBlobStore(configMap)
 
     then:
       1 * blobStoreApi.createFileBlobStore('testBlobStore', '/nexus-data/blobs/testBlobStore')
