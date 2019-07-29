@@ -27,12 +27,10 @@ import io.kubernetes.client.models.V1ConfigMap;
 import io.kubernetes.client.models.V1Secret;
 import io.kubernetes.client.util.Config;
 import org.sonatype.goodies.lifecycle.LifecycleSupport;
-import org.sonatype.nexus.BlobStoreApi;
 import org.sonatype.nexus.blobstore.api.BlobStoreManager;
 import org.sonatype.nexus.common.app.ManagedLifecycle;
 import org.sonatype.nexus.repository.Repository;
 import org.sonatype.nexus.repository.manager.RepositoryManager;
-import org.sonatype.nexus.script.plugin.RepositoryApi;
 import org.sonatype.nexus.security.SecuritySystem;
 import org.sonatype.nexus.security.user.UserNotFoundException;
 
@@ -57,19 +55,15 @@ import static org.sonatype.nexus.common.app.ManagedLifecycle.Phase.TASKS;
 public class OpenShiftConfigPlugin extends LifecycleSupport {
   static final String TYPE = "openshift-kubernetes-plugin";
   private static final String SERVICE_ACCOUNT_NAMESPACE_FILE = "/run/secrets/kubernetes.io/serviceaccount/namespace";
+  private static final String RECIPE = "recipe";
+  private static final String GROUP = "Group";
 
   // ***************************************************************************
   // *** Fields and methods are left 'package-private' to facilitate testing ***
   // ***************************************************************************
 
   @Inject
-  BlobStoreApi blobStoreApi;
-
-  @Inject
   BlobStoreManager blobStoreManager;
-
-  @Inject
-  RepositoryApi repository;
 
   @Inject
   RepositoryManager repositoryManager;
@@ -77,8 +71,10 @@ public class OpenShiftConfigPlugin extends LifecycleSupport {
   @Inject
   SecuritySystem security;
 
+  @Inject
   BlobStoreConfigWatcher blobStoreConfigWatcher;
 
+  @Inject
   RepositoryConfigWatcher repositoryConfigWatcher;
 
   ApiClient client;
@@ -96,8 +92,6 @@ public class OpenShiftConfigPlugin extends LifecycleSupport {
     // If running in OpenShift or K8s, it will automatically detect the correct settings
     // and service account credentials from the /run/secrets/kubernetes.io/serviceaccount
     // directory
-    repositoryConfigWatcher = new RepositoryConfigWatcher();
-    blobStoreConfigWatcher = new BlobStoreConfigWatcher();
     log.info("OpenShift/Kubernetes Plugin starting");
     File namespaceFile = new File(SERVICE_ACCOUNT_NAMESPACE_FILE);
     namespace = null;
@@ -150,7 +144,7 @@ public class OpenShiftConfigPlugin extends LifecycleSupport {
           .filter(this::filterExistingBlobStores) // Filter out existing BlobStores
           .forEach(configMap -> {
             log.info("Provisioning blobstore named '{}'", configMap.getMetadata().getName());
-            blobStoreConfigWatcher.addBlobStore(configMap, blobStoreApi);
+            blobStoreConfigWatcher.addBlobStore(configMap);
           });
 
       List<V1ConfigMap> allRepos = api.listNamespacedConfigMap(namespace, null, null, null, null, "nexus-type==repository", null, null, null, Boolean.FALSE)
@@ -160,39 +154,35 @@ public class OpenShiftConfigPlugin extends LifecycleSupport {
           .forEach(configMap -> {
             log.info("Provisioning repository named '{}'", configMap.getMetadata().getName());
             try {
-              repositoryConfigWatcher.createNewRepository(repository, configMap);
+              repositoryConfigWatcher.createNewRepository(configMap);
             } catch (Exception e) {
               log.warn("Failed to create repository", e);
             }
           });
       allRepos.stream().filter(this::filterExistingGroupRepositories)
-          .forEach(configMap -> repositoryConfigWatcher.updateGroupMembers(repositoryManager, configMap));
+          .forEach(configMap -> repositoryConfigWatcher.updateGroupMembers(configMap));
     } catch (ApiException e) {
       log.error("Error reading ConfigMaps", e);
     }
   }
 
   boolean filterExistingGroupRepositories(V1ConfigMap configMap) {
-    if (configMap.getData().get("recipe").endsWith("Group")) {
+    if (configMap.getData().get(RECIPE).endsWith(GROUP)) {
       Repository repo = repositoryManager.get(configMap.getMetadata().getName());
-      if (repo != null) {
-        return true;
-      }
+      return repo != null;
     }
     return false;
   }
 
   boolean filterExistingRepositories(V1ConfigMap configMap) {
-    if (configMap.getData().get("recipe") == null) {
+    if (configMap.getData().get(RECIPE) == null) {
       // If the configMap does not have a recipe specified, fail gracefully.
       log.warn("ConfigMap named '{}' does not specify a repository recipe. Ignoring.", configMap.getMetadata().getName());
       return false;
     }
     Repository repo = repositoryManager.get(configMap.getMetadata().getName());
-    if (repo == null) {  // If the repository does not yet exist, allow it
-      return true;
-    }
-    return false;
+    // If the repository does not yet exist, allow it
+    return repo == null;
   }
 
   /**
@@ -229,10 +219,10 @@ public class OpenShiftConfigPlugin extends LifecycleSupport {
    * @return And integer indicating the order of the items in the list
    */
   int sortGroupRepositoriesToLast(V1ConfigMap i1, V1ConfigMap i2) {
-    String recipeI1 = i1.getData().get("recipe");
-    String recipeI2 = i2.getData().get("recipe");
-    boolean i1IsGroup = recipeI1.endsWith("Group");
-    boolean i2IsGroup = recipeI2.endsWith("Group");
+    String recipeI1 = i1.getData().get(RECIPE);
+    String recipeI2 = i2.getData().get(RECIPE);
+    boolean i1IsGroup = recipeI1.endsWith(GROUP);
+    boolean i2IsGroup = recipeI2.endsWith(GROUP);
 
     if (i1IsGroup && i2IsGroup) {
       return 0;
