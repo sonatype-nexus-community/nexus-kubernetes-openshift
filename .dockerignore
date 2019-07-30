@@ -1,2 +1,3 @@
-!nexus-openshift-plugin-*.jar
+**/*
+!nexus-openshift-plugin-*
 !Dockerfile*

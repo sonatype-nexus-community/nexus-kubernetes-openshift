@@ -62,7 +62,7 @@ class RepositoryConfigWatcherSpec extends Specification {
       def configMap = Mock(V1ConfigMap)
       def metadata = Mock(V1ObjectMeta)
       def applicationVersion = Mock(ApplicationVersion) {
-        getVersion() >> '3.17'
+        getVersion() >> '3.10'
       }
       def data = [
               recipe: 'DockerHosted',
@@ -78,8 +78,8 @@ class RepositoryConfigWatcherSpec extends Specification {
     then:
       1 * configMap.getMetadata() >> metadata
       1 * metadata.getName() >> "testRepository"
-      8 * configMap.getData() >> data
-      1 * repositoryApi.createDockerHosted("testRepository", 9080, null, BlobStoreManager.DEFAULT_BLOBSTORE_NAME, true, true, WritePolicy.ALLOW, true)
+      7 * configMap.getData() >> data
+      1 * repositoryApi.createDockerHosted("testRepository", 9080, null, BlobStoreManager.DEFAULT_BLOBSTORE_NAME, true, true, WritePolicy.ALLOW)
   }
 
   def "test create docker proxy repository with httpPort 9081"() {
