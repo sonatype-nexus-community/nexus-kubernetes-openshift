@@ -43,6 +43,7 @@ import org.sonatype.nexus.script.plugin.internal.provisioning.RepositoryApiImpl
 import java.util.stream.Collectors
 
 @Named
+@Singleton
 class RepositoryConfigWatcher {
 
   private static final Logger LOG = LoggerFactory.getLogger(RepositoryConfigWatcher.class)
