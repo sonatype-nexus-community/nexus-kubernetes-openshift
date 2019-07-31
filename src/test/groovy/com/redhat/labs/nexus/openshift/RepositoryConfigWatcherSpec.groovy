@@ -23,7 +23,6 @@ import io.kubernetes.client.models.V1ConfigMap
 import io.kubernetes.client.models.V1ObjectMeta
 import org.sonatype.nexus.blobstore.api.BlobStoreManager
 import org.sonatype.nexus.common.app.ApplicationVersion
-import org.sonatype.nexus.common.app.VersionComparator
 import org.sonatype.nexus.repository.Repository
 import org.sonatype.nexus.repository.config.Configuration
 import org.sonatype.nexus.repository.manager.RepositoryManager
@@ -54,6 +53,32 @@ class RepositoryConfigWatcherSpec extends Specification {
       1 * metadata.getName() >> 'testRepository'
       6 * configMap.getData() >> data
       1 * repositoryApi.createMavenHosted("testRepository", BlobStoreManager.DEFAULT_BLOBSTORE_NAME, true, VersionPolicy.RELEASE, WritePolicy.ALLOW_ONCE, LayoutPolicy.STRICT)
+  }
+
+  def "Test create nuget hosted repository"() {
+    given:
+      def repositoryApi = Mock(RepositoryApi)
+      def configMap = Mock(V1ConfigMap)
+      def metadata = Mock(V1ObjectMeta)
+      def applicationVersion = Mock(ApplicationVersion) {
+        getVersion() >> '3.10'
+      }
+      def data = [
+        recipe: 'NugetHosted',
+        blobStoreName: 'nuget'
+      ] as Map<String, String>
+      def underTest = new RepositoryConfigWatcher()
+      underTest.applicationVersion = applicationVersion
+      underTest.repositoryApi = repositoryApi
+
+    when:
+      underTest.createNewRepository(configMap)
+
+    then:
+      1 * configMap.getMetadata() >> metadata
+      1 * metadata.getName() >> "testRepository"
+      4 * configMap.getData() >> data
+      1 * repositoryApi.createNugetHosted("testRepository", 'nuget', true, WritePolicy.ALLOW)
   }
 
   def "test create docker hosted repository with httpPort 9080"() {
