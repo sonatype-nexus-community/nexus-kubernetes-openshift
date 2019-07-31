@@ -1,0 +1,13 @@
+apiVersion: v1
+data:
+  blobStoreName: maven
+  layoutPolicy: STRICT
+  recipe: MavenProxy
+  remoteUrl: http://repo.jenkins-ci.org/public
+  strictContentTypeValidation: "true"
+  versionPolicy: RELEASE
+kind: ConfigMap
+metadata:
+  labels:
+    nexus-type: repository
+  name: jenkins-public

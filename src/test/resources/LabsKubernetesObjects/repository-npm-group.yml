@@ -1,0 +1,11 @@
+apiVersion: v1
+data:
+  blobStoreName: npm
+  members: npm-all,npm-registry
+  recipe: NpmGroup
+  strictContentTypeValidation: "true"
+kind: ConfigMap
+metadata:
+  labels:
+    nexus-type: repository
+  name: npm-group

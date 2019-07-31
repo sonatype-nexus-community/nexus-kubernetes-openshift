@@ -1,0 +1,13 @@
+apiVersion: v1
+data:
+  blobStoreName: maven
+  layoutPolicy: STRICT
+  recipe: MavenProxy
+  remoteUrl: https://maven.repository.redhat.com/ga/
+  strictContentTypeValidation: "true"
+  versionPolicy: RELEASE
+kind: ConfigMap
+metadata:
+  labels:
+    nexus-type: repository
+  name: redhat-ga

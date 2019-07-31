@@ -1,0 +1,11 @@
+apiVersion: v1
+data:
+  blobStoreName: raw
+  recipe: RawHosted
+  strictContentTypeValidation: "true"
+  writePolicy: ALLOW
+kind: ConfigMap
+metadata:
+  labels:
+    nexus-type: repository
+  name: labs-static

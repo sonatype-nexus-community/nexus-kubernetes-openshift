@@ -1,0 +1,11 @@
+apiVersion: v1
+data:
+  blobStoreName: nuget
+  recipe: NugetProxy
+  remoteUrl: https://www.nuget.org/api/v2/
+  strictContentTypeValidation: "true"
+kind: ConfigMap
+metadata:
+  labels:
+    nexus-type: repository
+  name: nuget.org-proxy

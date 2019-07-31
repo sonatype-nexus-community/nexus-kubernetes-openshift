@@ -1,0 +1,11 @@
+apiVersion: v1
+data:
+  blobStoreName: npm
+  recipe: NpmHosted
+  strictContentTypeValidation: "true"
+  writePolicy: ALLOW
+kind: ConfigMap
+metadata:
+  labels:
+    nexus-type: repository
+  name: npm-all

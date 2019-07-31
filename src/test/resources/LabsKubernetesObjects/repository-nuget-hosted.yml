@@ -1,0 +1,11 @@
+apiVersion: v1
+data:
+  blobStoreName: nuget
+  recipe: NugetHosted
+  strictContentTypeValidation: "true"
+  writePolicy: ALLOW
+kind: ConfigMap
+metadata:
+  labels:
+    nexus-type: repository
+  name: nuget-hosted

@@ -1,0 +1,10 @@
+apiVersion: v1
+data:
+  blobStoreName: pypi
+  members: pypi-proxy,pypi-internal
+  recipe: RawGroup
+kind: ConfigMap
+metadata:
+  labels:
+    nexus-type: repository
+  name: pypi-all

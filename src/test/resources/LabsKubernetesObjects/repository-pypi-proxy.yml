@@ -1,0 +1,11 @@
+apiVersion: v1
+data:
+  blobStoreName: pypi
+  recipe: PyPiProxy
+  remoteUrl: https://pypi.org/
+  strictContentTypeValidation: "true"
+kind: ConfigMap
+metadata:
+  labels:
+    nexus-type: repository
+  name: pypi-proxy

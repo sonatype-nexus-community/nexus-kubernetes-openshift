@@ -1,0 +1,11 @@
+apiVersion: v1
+data:
+  blobStoreName: pypi
+  recipe: PyPiHosted
+  strictContentTypeValidation: "true"
+  writePolicy: ALLOW
+kind: ConfigMap
+metadata:
+  labels:
+    nexus-type: repository
+  name: pypi-internal

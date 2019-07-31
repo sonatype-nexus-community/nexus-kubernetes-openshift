@@ -1,0 +1,11 @@
+apiVersion: v1
+data:
+  blobStoreName: raw
+  recipe: RawProxy
+  remoteUrl: https://nvd.nist.gov/feeds/
+  strictContentTypeValidation: "true"
+kind: ConfigMap
+metadata:
+  labels:
+    nexus-type: repository
+  name: nist-proxy-repos

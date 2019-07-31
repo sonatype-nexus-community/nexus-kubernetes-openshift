@@ -1,0 +1,10 @@
+apiVersion: v1
+data:
+  blobStoreName: nuget
+  members: nuget.org-proxy,nuget-hosted
+  recipe: NugetGroup
+kind: ConfigMap
+metadata:
+  labels:
+    nexus-type: repository
+  name: nuget-group

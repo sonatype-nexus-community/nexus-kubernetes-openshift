@@ -1,0 +1,11 @@
+apiVersion: v1
+data:
+  blobStoreName: maven
+  members: jboss-public,redhat-ga,redhat-earlyaccess-all
+  recipe: MavenGroup
+  strictContentTypeValidation: "true"
+kind: ConfigMap
+metadata:
+  labels:
+    nexus-type: repository
+  name: redhat-public

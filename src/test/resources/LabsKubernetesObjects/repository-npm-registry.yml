@@ -1,0 +1,11 @@
+apiVersion: v1
+data:
+  blobStoreName: npm
+  recipe: NpmProxy
+  remoteUrl: https://registry.npmjs.org
+  strictContentTypeValidation: "true"
+kind: ConfigMap
+metadata:
+  labels:
+    nexus-type: repository
+  name: npm-registry
