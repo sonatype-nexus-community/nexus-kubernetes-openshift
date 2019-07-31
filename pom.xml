@@ -21,12 +21,12 @@
   <parent>
     <groupId>org.sonatype.nexus.plugins</groupId>
     <artifactId>nexus-plugins</artifactId>
-    <version>3.17.0-01</version>
+    <version>3.10.0-04</version>
   </parent>
 
   <groupId>com.redhat.labs.nexus</groupId>
   <artifactId>nexus-openshift-plugin</artifactId>
-  <version>0.2.7-SNAPSHOT</version>
+  <version>0.2.8-SNAPSHOT</version>
   <name>${project.groupId}:${project.artifactId}</name>
   <packaging>bundle</packaging>
   <description>Nexus Kubernetes/OpenShift Configuration Plugin</description>
@@ -375,8 +375,8 @@
             </Include-Resource>
             <!-- clear default to avoid spurious !* warnings -->
             <Private-Package/>
-            <Export-Package>com.google.gson.*;-split-package:=first,io.sundr.*;-split-package:=merge-last,com.redhat.labs.nexus.*,io.kubernetes.*;-split-package:=first,com.squareup.*;-split-package:=first,okio;-split-package:=first,com.google.protobuf.*;-split-package:=first</Export-Package>
-            <Import-Package>!com.google.gson.*,,!io.sundr.*;-split-package:=merge-last,!com.squareup.*,!io.kubernetes.*;-split-package:=first,!okio,!dalvik.system,!com.android.*,!android.*,!com.google.protobuf.*,!com.microsoft.aad.*,!com.sun.tools.javac.*,!com.werken.*,!org.apache.harmony.*,!org.apache.log.*,!org.jdom.*,!org.apache.oro.*,*</Import-Package>
+            <Export-Package>com.google.gson.*,com.redhat.labs.nexus.*,io.kubernetes.*;-split-package:=first,com.squareup.*;-split-package:=first,okio;-split-package:=first,com.google.protobuf.*;-split-package:=first</Export-Package>
+            <Import-Package>!com.google.gson.*,!io.sundr.*;-split-package:=merge-last,!com.squareup.*,!io.kubernetes.*;-split-package:=first,!okio,!dalvik.system,!com.android.*,!android.*,!com.google.protobuf.*,!com.microsoft.aad.*,!com.sun.tools.javac.*,!com.werken.*,!org.apache.harmony.*,!org.apache.log.*,!org.jdom.*,!org.apache.oro.*,*</Import-Package>
             <Embed-Dependency>*;scope=compile|runtime;inline=true</Embed-Dependency>
             <Bundle-ClassPath>.,{maven-dependencies}</Bundle-ClassPath>
           </instructions>

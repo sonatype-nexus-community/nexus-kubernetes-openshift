@@ -149,9 +149,16 @@ public class OpenShiftConfigPlugin extends LifecycleSupport {
 
       List<V1ConfigMap> allRepos = api.listNamespacedConfigMap(namespace, null, null, null, null, "nexus-type==repository", null, null, null, Boolean.FALSE)
           .getItems();
+      /*
+       * 1. Retrieve a list of all repository ConfigMaps
+       * 2. Filter out repositories which already exist. This plugin cannot modify repositories.
+       * 3. Sort the list so that all Group repositories are last to be provisioned.
+       *    This allows non-groups to be created and available before assigning them to groups.
+       * 4. Iterate over remaining ConfigMaps and provision the repositories
+       */
       allRepos.stream().filter(this::filterExistingRepositories) // Filter out existing repositories
           .sorted(this::sortGroupRepositoriesToLast)  // Sort Group recipes to last
-          .forEach(configMap -> {
+          .forEachOrdered(configMap -> {
             log.info("Provisioning repository named '{}'", configMap.getMetadata().getName());
             try {
               repositoryConfigWatcher.createNewRepository(configMap);
