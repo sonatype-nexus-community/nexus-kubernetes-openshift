@@ -1,0 +1,116 @@
+# Java Maven CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-java/ for more details
+#
+
+only-deploy-tags: &only-deploy-tags
+  filters:
+    tags:
+      only: /^v\d+\.\d+\.\d+/
+    branches:
+      ignore: /.*/
+
+executors:
+  maven-executor:
+    docker:
+      - image: circleci/openjdk:8-jdk
+    working_directory: ~/repo
+
+version: 2
+jobs:
+  cache:
+    executor: maven-executor
+
+    environment:
+      # Customize the JVM maximum heap limit
+      MAVEN_OPTS: -Xmx3200m
+    steps:
+      - checkout
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "pom.xml" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+
+      - run: mvn dependency:go-offline
+
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: v1-dependencies-{{ checksum "pom.xml" }}
+
+  prebuild:
+    executor: maven-executor
+
+    environment:
+      # Customize the JVM maximum heap limit
+      MAVEN_OPTS: -Xmx3200m
+
+    steps:
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "pom.xml" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+
+      - run: git fetch --unshallow
+      - run: mvn -q versions:set@remove-snapshot versions:commit@remove-snapshot -B
+      - run: mvn sonar:sonar -Dsonar.login=${SONAR_PROJECT_TOKEN} -B
+      - run: mvn -q dependency-check:check -B
+
+  build:
+    executor: maven-executor
+
+    environment:
+      # Customize the JVM maximum heap limit
+      MAVEN_OPTS: -Xmx3200m
+
+    steps:
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "pom.xml" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+
+
+      # run tests!
+      - run: mvn clean package -B
+
+  deploy:
+    executor: maven-executor
+
+    environment:
+      # Customize the JVM maximum heap limit
+      MAVEN_OPTS: -Xmx3200m
+
+    steps:
+
+      - run: mvn -q bundle:bundle -B
+
+workflows:
+  version: 2
+  untagged-build:
+    jobs:
+      - cache
+      - build:
+          requires:
+            - cache
+
+  tagged-build:
+    jobs:
+      - cache
+      - prebuild:
+          <<: *only-deploy-tags
+          requires:
+            - cache
+      - build: *only-deploy-tags
+          requires:
+            - cache
+      - deploy:
+          <<: *only-deploy-tags
+          requires:
+            - build
