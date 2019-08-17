@@ -1,0 +1,53 @@
+stages:
+- name: compileAndTest
+  steps:
+  - runScriptConfig:
+      image: java:8
+      shellScript: mvn compile test -B
+  when:
+    branch:
+      exclude:
+      - master
+- name: qualityAndSecurity
+  steps:
+  - runScriptConfig:
+      image: java:8
+      shellScript: mvn sonar:sonar -Dsonar.login=${SONAR_PROJECT_TOKEN} -B
+    env:
+      SONAR_PROJECT_TOKEN: 870ff5dc9305828643973768e41b89b10716164f
+    when:
+      event: {}
+  - runScriptConfig:
+      image: java:8
+      shellScript: mvn -q dependency-check:check -B
+    when:
+      branch: {}
+      event: {}
+  - runScriptConfig:
+      image: java:8
+      shellScript: mvn -q bundle:bundle -B
+    when:
+      branch: {}
+      event: {}
+  when:
+    branch: {}
+    event:
+      include:
+      - tag
+- name: deployToGithub
+  steps:
+  - runScriptConfig:
+      image: buildkite/github-release
+      shellScript: |-
+        export GITHUB_RELEASE_TAG=$(git tag -l| tail -n 1)
+        export BUNDLE_JAR=$(ls nexus*jar)
+        github-release "${GITHUB_RELEASE_TAG}" "${BUNDLE_JAR}"
+    env:
+      GITHUB_RELEASE_ACCESS_TOKEN: 9ac06a17e1d90b9db50d6e24a08466edcc892a6e
+      GITHUB_RELEASE_REPOSITORY: InfoSec812/nexus-kubernetes-openshift
+  when:
+    event:
+      include:
+      - tag
+timeout: 60
+notification: {}
