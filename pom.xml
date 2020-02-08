@@ -37,9 +37,9 @@
   </organization>
 
 <!--  <scm>
-    <connection>https://github.com/InfoSec812/nexus-kubernetes-openshift</connection>
-    <developerConnection>git@github.com:InfoSec812/nexus-kubernetes-openshift</developerConnection>
-    <url>https://github.com/InfoSec812/nexus-kubernetes-openshift</url>
+    <connection>https://github.com/sonatype-nexus-community/nexus-kubernetes-openshift</connection>
+    <developerConnection>git@github.com:sonatype-nexus-community/nexus-kubernetes-openshift</developerConnection>
+    <url>https://github.com/sonatype-nexus-community/nexus-kubernetes-openshift</url>
   </scm>-->
 
   <developers>
