@@ -21,7 +21,7 @@
   <parent>
     <groupId>org.sonatype.nexus.plugins</groupId>
     <artifactId>nexus-plugins</artifactId>
-    <version>3.10.0-04</version>
+    <version>3.20.1-01</version>
   </parent>
 
   <groupId>com.redhat.labs.nexus</groupId>
@@ -285,7 +285,7 @@
             <goals>
               <goal>check</goal>
             </goals>
-            <phase>none</phase>
+            <phase>verify</phase>
           </execution>
         </executions>
       </plugin>
