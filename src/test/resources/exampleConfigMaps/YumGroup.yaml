@@ -9,3 +9,4 @@ metadata:
 data:
   recipe: YumGroup
   blobStoreName: default
+  members: redhat, centos, fedora

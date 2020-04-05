@@ -9,3 +9,4 @@ metadata:
 data:
   recipe: MavenGroup
   blobStoreName: default
+  members: central, private, partner

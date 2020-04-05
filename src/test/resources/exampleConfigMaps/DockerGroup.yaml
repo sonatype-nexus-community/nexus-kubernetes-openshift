@@ -11,3 +11,4 @@ data:
   v1Enabled: true
   blobStoreName: default
   forceBasicAuth: true
+  members: quayio, redhat
