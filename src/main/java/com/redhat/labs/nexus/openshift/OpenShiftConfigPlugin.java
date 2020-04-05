@@ -42,6 +42,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.Map;
 import static org.sonatype.nexus.common.app.ManagedLifecycle.Phase.TASKS;
@@ -80,6 +81,8 @@ public class OpenShiftConfigPlugin extends LifecycleSupport {
   ApiClient client;
   CoreV1Api api;
   String namespace;
+  String adminPassFile;
+  File passFile = new File("/nexus-data/admin.password");
 
   /**
    * Called by the Nexus LifecyleManager, this method initializes all required
@@ -122,12 +125,27 @@ public class OpenShiftConfigPlugin extends LifecycleSupport {
   void configureFromCluster() throws Exception {
     try {
       client.getBasePath();
+      readGeneratedAdminPasswordIfPresent();
       log.info("OpenShift/Kubernetes client successfully configured");
       setAdminPassword();
       readAndConfigure();
     } catch (IllegalStateException ise) {
       log.warn("OpenShift/Kubernetes client could not be configured", ise);
       throw new Exception("Unable to configure K8s/OpenShift client", ise);
+    }
+  }
+
+  /**
+   * Read the `/nexus-data/admin.password` if present to use it to configure the
+   * Nexus Admin password.
+   */
+  void readGeneratedAdminPasswordIfPresent() {
+    try {
+      if (passFile.exists() && passFile.canRead()) {
+        adminPassFile = Files.readAllLines(passFile.toPath()).get(0).trim();
+      }
+    } catch (IOException e) {
+      adminPassFile = "admin123";
     }
   }
 
@@ -206,9 +224,18 @@ public class OpenShiftConfigPlugin extends LifecycleSupport {
       if (nexusSecret != null) {
         Map<String, byte[]> secretData = nexusSecret.getData();
         secretData.keySet().forEach(s -> log.debug("{}:{}", s, new String(secretData.get(s))));
-        String password = new String(secretData.getOrDefault("password", System.getenv().getOrDefault("NEXUS_PASSWORD", "admin123").getBytes()));
-        security.changePassword("admin", password);
-        log.info("Admin password successfully set from Secret.");
+        String password = new String(secretData.getOrDefault("password", adminPassFile.getBytes()));
+        if (!password.contentEquals(adminPassFile)) {
+          security.changePassword("admin", password);
+          log.info("Admin password successfully set from Secret.");
+          try {
+            Files.write(passFile.toPath(), password.getBytes(), StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
+          } catch (IOException e) {
+            log.warn("Unable to update admin password file /nexus-data/admin.password");
+          }
+          return;
+        }
+        log.info("Admin password is already current.");
       } else {
         log.info("Unable to retrieve secret 'nexus' from namespace '{}'", namespace);
       }
