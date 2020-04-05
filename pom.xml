@@ -35,11 +35,11 @@
     <url>https://redhat.com/</url>
   </organization>
 
-  <!--  <scm>
-    <connection>https://github.com/sonatype-nexus-community/nexus-kubernetes-openshift</connection>
-    <developerConnection>git@github.com:sonatype-nexus-community/nexus-kubernetes-openshift</developerConnection>
-    <url>https://github.com/sonatype-nexus-community/nexus-kubernetes-openshift</url>
-  </scm>-->
+<!--  <scm>-->
+<!--    <connection>https://github.com/sonatype-nexus-community/nexus-kubernetes-openshift</connection>-->
+<!--    <developerConnection>git@github.com:sonatype-nexus-community/nexus-kubernetes-openshift</developerConnection>-->
+<!--    <url>https://github.com/sonatype-nexus-community/nexus-kubernetes-openshift</url>-->
+<!--  </scm>-->
 
   <developers>
     <developer>
