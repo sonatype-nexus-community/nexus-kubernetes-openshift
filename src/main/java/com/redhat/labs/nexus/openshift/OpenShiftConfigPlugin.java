@@ -26,6 +26,7 @@ import io.kubernetes.client.apis.CoreV1Api;
 import io.kubernetes.client.models.V1ConfigMap;
 import io.kubernetes.client.models.V1Secret;
 import io.kubernetes.client.util.Config;
+import org.apache.shiro.authz.AuthorizationException;
 import org.sonatype.goodies.lifecycle.LifecycleSupport;
 import org.sonatype.nexus.blobstore.api.BlobStoreManager;
 import org.sonatype.nexus.common.app.ManagedLifecycle;
@@ -206,8 +207,13 @@ public class OpenShiftConfigPlugin extends LifecycleSupport {
       if (nexusSecret != null) {
         Map<String, byte[]> secretData = nexusSecret.getData();
         secretData.keySet().forEach(s -> log.debug("{}:{}", s, new String(secretData.get(s))));
-        String password = new String(secretData.getOrDefault("password", System.getenv().getOrDefault("NEXUS_PASSWORD", "admin123").getBytes()));
-        security.changePassword("admin", password);
+        String initialAdminPass = System.getenv().getOrDefault("NEXUS_PASSWORD", "admin123");
+        String password = new String(secretData.getOrDefault("password", initialAdminPass.getBytes()));
+        try {
+          security.changePassword("admin", password);
+        } catch (AuthorizationException ae) {
+          security.changePassword("admin", initialAdminPass, password);
+        }
         log.info("Admin password successfully set from Secret.");
       } else {
         log.info("Unable to retrieve secret 'nexus' from namespace '{}'", namespace);
