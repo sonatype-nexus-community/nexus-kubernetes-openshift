@@ -7,7 +7,7 @@ LABEL maintainer="Deven Phillips <deven.phillips@redhat.com>" \
 ARG PLUGIN_VERSION=0.2.8
 
 USER root
-ADD https://github.com/sonatype-nexus-community/nexus-kubernetes-openshift/releases/download/v${PLUGIN_VERSION}/nexus-openshift-plugin-${PLUGIN_VERSION}.jar /opt/sonatype/nexus/deploy/nexus-openshift-plugin.jar
+RUN curl https://github.com/sonatype-nexus-community/nexus-kubernetes-openshift/releases/download/v${PLUGIN_VERSION}/nexus-openshift-plugin-${PLUGIN_VERSION}.jar -o /opt/sonatype/nexus/deploy/nexus-openshift-plugin.jar
 RUN chown root:root /opt -R \
     && chown root:root /nexus-data -R \
     && chmod 775 /opt -R \
